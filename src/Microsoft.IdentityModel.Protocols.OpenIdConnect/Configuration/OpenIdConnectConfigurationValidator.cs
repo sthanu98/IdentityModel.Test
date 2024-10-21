@@ -55,6 +55,7 @@ namespace Microsoft.IdentityModel.Protocols.OpenIdConnect.Configuration
                 {
                     ErrorMessage = LogHelper.FormatInvariant(
                         LogMessages.IDX21818,
+                        this,
                         LogHelper.MarkAsNonPII(MinimumNumberOfKeys),
                         LogHelper.MarkAsNonPII(numberOfValidKeys),
                         string.IsNullOrEmpty(convertKeyInfos) ? "None" : convertKeyInfos),

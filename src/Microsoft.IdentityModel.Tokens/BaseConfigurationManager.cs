@@ -16,10 +16,16 @@ namespace Microsoft.IdentityModel.Tokens
     public abstract class BaseConfigurationManager
     {
         private TimeSpan _automaticRefreshInterval = DefaultAutomaticRefreshInterval;
+        internal double _automaticRefreshIntervalInSeconds = DefaultAutomaticRefreshInterval.TotalSeconds;
         private TimeSpan _refreshInterval = DefaultRefreshInterval;
+        internal double _requestRefreshIntervalInSeconds = DefaultRefreshInterval.TotalSeconds;
         private TimeSpan _lastKnownGoodLifetime = DefaultLastKnownGoodConfigurationLifetime;
         private BaseConfiguration _lastKnownGoodConfiguration;
         private DateTime? _lastKnownGoodConfigFirstUse;
+
+        // Seconds since the BaseConfigurationManager was created when the last refresh occurred.
+        internal int _timeInSecondsWhenLastAutomaticRefreshOccurred;
+        internal int _timeInSecondsWhenLastRequestRefreshOccurred;
 
         internal EventBasedLRUCache<BaseConfiguration, DateTime> _lastKnownGoodConfigurationCache;
 
@@ -35,8 +41,26 @@ namespace Microsoft.IdentityModel.Tokens
                     throw LogHelper.LogExceptionMessage(new ArgumentOutOfRangeException(nameof(value), LogHelper.FormatInvariant(LogMessages.IDX10108, LogHelper.MarkAsNonPII(MinimumAutomaticRefreshInterval), LogHelper.MarkAsNonPII(value))));
 
                 _automaticRefreshInterval = value;
+                Interlocked.Exchange(ref _automaticRefreshIntervalInSeconds, value.TotalSeconds);
             }
         }
+
+        /// <summary>
+        /// Records the time this instance was created.
+        /// Used to determine if the automatic refresh or request refresh interval has passed.
+        /// The set is used for testing purposes.
+        /// </summary>
+        internal DateTimeOffset StartupTime { get; set; } = DateTimeOffset.UtcNow;
+
+        /// <summary>
+        /// Each time GetConfigurationAsync() results in a http request, this value is incremented.
+        /// </summary>
+        internal long NumberOfTimesAutomaticRefreshRequested { get; set; }
+
+        /// <summary>
+        /// Each time RequestRefresh() results in a http request, this value is incremented.
+        /// </summary>
+        internal long NumberOfTimesRequestRefreshRequested { get; set; }
 
         /// <summary>
         /// Default time interval (12 hours) after which a new configuration is obtained automatically.
@@ -165,6 +189,7 @@ namespace Microsoft.IdentityModel.Tokens
                     throw LogHelper.LogExceptionMessage(new ArgumentOutOfRangeException(nameof(value), LogHelper.FormatInvariant(LogMessages.IDX10107, LogHelper.MarkAsNonPII(MinimumRefreshInterval), LogHelper.MarkAsNonPII(value))));
 
                 _refreshInterval = value;
+                Interlocked.Exchange(ref _requestRefreshIntervalInSeconds, value.TotalSeconds);
             }
         }
 

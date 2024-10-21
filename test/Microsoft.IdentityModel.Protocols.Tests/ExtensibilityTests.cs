@@ -81,11 +81,11 @@ namespace Microsoft.IdentityModel.Protocols.Tests
             configManager = new ConfigurationManager<IssuerMetadata>("IssuerMetadata.json", new IssuerConfigurationRetriever(), docRetriever);
             configManager.RequestRefresh();
             configuration = await configManager.GetConfigurationAsync();
-            TestUtilities.SetField(configManager, "_lastRequestRefresh", DateTimeOffset.UtcNow - TimeSpan.FromHours(1));
-            configManager.MetadataAddress = "IssuerMetadata2.json";
-
             // Wait for the refresh to complete.
-            await Task.Delay(500);
+            await Task.Delay(1000);
+
+            configManager.StartupTime = DateTimeOffset.UtcNow - TimeSpan.FromDays(2);
+            configManager.MetadataAddress = "IssuerMetadata2.json";
 
             for (int i = 0; i < 5; i++)
             {
