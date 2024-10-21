@@ -41,13 +41,12 @@ namespace Microsoft.IdentityModel.TestUtils
         /// <returns>UTF8 decoding of bytes in the file.</returns>
         public async Task<string> GetDocumentAsync(string address, CancellationToken cancel)
         {
-            // Some tests change the Metadata address on ConfigurationManger to test different scenarios.
-            // This event is used to let the test know that the GetDocumentAsync method has been called, and the test can now change the Metadata address.
+            // Signal the we are inside GetDocumentAsync => ConfigurationManager.GetConfigurationAsync OR RequestRefresh is waiting for
+            // this method to return
             if (_signalEvent != null)
                 _signalEvent.Set();
 
-            // This event lets the caller control when metadata can be returned.
-            // Useful when testing delays.
+            // Wait here until caller wants us to return
             if (_waitEvent != null)
                 _waitEvent.WaitOne();
 

@@ -1,0 +1,1 @@
+const Microsoft.IdentityModel.Protocols.LogMessages.IDX20803 = "IDX20803: Unable to obtain configuration from: '{0}'. Will retry in '{1}' seconds. Exception: '{2}'." -> string

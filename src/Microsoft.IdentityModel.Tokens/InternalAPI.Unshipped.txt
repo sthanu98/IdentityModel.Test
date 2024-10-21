@@ -6,6 +6,16 @@ Microsoft.IdentityModel.Tokens.AlgorithmValidationError.InvalidAlgorithm.get -> 
 Microsoft.IdentityModel.Tokens.AlgorithmValidationError._invalidAlgorithm -> string
 Microsoft.IdentityModel.Tokens.AudienceValidationError.AudienceValidationError(Microsoft.IdentityModel.Tokens.MessageDetail messageDetail, Microsoft.IdentityModel.Tokens.ValidationFailureType failureType, System.Type exceptionType, System.Diagnostics.StackFrame stackFrame, System.Collections.Generic.IList<string> tokenAudiences, System.Collections.Generic.IList<string> validAudiences) -> void
 Microsoft.IdentityModel.Tokens.AudienceValidationError.TokenAudiences.get -> System.Collections.Generic.IList<string>
+Microsoft.IdentityModel.Tokens.BaseConfigurationManager.BootstrapIntervalInSeconds.get -> int
+Microsoft.IdentityModel.Tokens.BaseConfigurationManager.BootstrapIntervalInSeconds.set -> void
+Microsoft.IdentityModel.Tokens.BaseConfigurationManager.NumberOfTimesMetadataWasRequested.get -> long
+Microsoft.IdentityModel.Tokens.BaseConfigurationManager.NumberOfTimesMetadataWasRequested.set -> void
+Microsoft.IdentityModel.Tokens.BaseConfigurationManager.StartupTime.get -> System.DateTimeOffset
+Microsoft.IdentityModel.Tokens.BaseConfigurationManager.StartupTime.set -> void
+Microsoft.IdentityModel.Tokens.BaseConfigurationManager._automaticRefreshIntervalInSeconds -> double
+Microsoft.IdentityModel.Tokens.BaseConfigurationManager._requestRefreshIntervalInSeconds -> double
+Microsoft.IdentityModel.Tokens.BaseConfigurationManager._secondsWhenLastAutomaticRefreshOccurred -> double
+Microsoft.IdentityModel.Tokens.BaseConfigurationManager._secondsWhenLastRequestRefreshIOccurred -> double
 Microsoft.IdentityModel.Tokens.IssuerValidationSource.IssuerMatchedConfiguration = 1 -> Microsoft.IdentityModel.Tokens.IssuerValidationSource
 Microsoft.IdentityModel.Tokens.IssuerValidationSource.IssuerMatchedValidationParameters = 2 -> Microsoft.IdentityModel.Tokens.IssuerValidationSource
 Microsoft.IdentityModel.Tokens.LifetimeValidationError._expires -> System.DateTime
