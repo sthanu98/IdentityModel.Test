@@ -742,7 +742,7 @@ namespace Microsoft.IdentityModel.Protocols.SignedHttpRequest.Tests
             }
         }
 
-        [Theory(Skip = "flaky"), MemberData(nameof(GetPopKeysFromJkuAsyncTheoryData), DisableDiscoveryEnumeration = true)]
+        [Theory, MemberData(nameof(GetPopKeysFromJkuAsyncTheoryData), DisableDiscoveryEnumeration = true)]
         public async Task GetPopKeysFromJkuAsync(ResolvePopKeyTheoryData theoryData)
         {
             var context = TestUtilities.WriteHeader($"{this}.GetPopKeysFromJkuAsync", theoryData);
@@ -811,17 +811,16 @@ namespace Microsoft.IdentityModel.Protocols.SignedHttpRequest.Tests
                         ExpectedException = new ExpectedException(typeof(SignedHttpRequestInvalidPopKeyException), "IDX23022", null, true),
                         TestId = "InvalidHttpNoContentReturned",
                     },
-                    // TODO - find out why test is timing out in the AzureDevOps build, appears to be unrelated to the caching changes
-                    //new ResolvePopKeyTheoryData
-                    //{
-                    //    JkuSetUrl = "http://www.contoso.com",
-                    //    SignedHttpRequestValidationParameters = new SignedHttpRequestValidationParameters()
-                    //    {
-                    //        RequireHttpsForJkuResourceRetrieval = false,
-                    //    },
-                    //    ExpectedException = new ExpectedException(typeof(SignedHttpRequestInvalidPopKeyException), "IDX23022", typeof(ArgumentException)),
-                    //    TestId = "Valid0KeysReturnedLive",
-                    //},
+                    new ResolvePopKeyTheoryData
+                    {
+                        JkuSetUrl = "http://www.contoso.com",
+                        SignedHttpRequestValidationParameters = new SignedHttpRequestValidationParameters()
+                        {
+                            RequireHttpsForJkuResourceRetrieval = false,
+                        },
+                        ExpectedException = new ExpectedException(typeof(SignedHttpRequestInvalidPopKeyException), "IDX23022", typeof(ArgumentException)),
+                        TestId = "Valid0KeysReturnedLive",
+                    },
                     new ResolvePopKeyTheoryData
                     {
                         JkuSetUrl = "https://www.contoso.com",
