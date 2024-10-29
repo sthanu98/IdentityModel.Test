@@ -131,12 +131,16 @@ namespace Microsoft.IdentityModel.JsonWebTokens.Tests
 #if NET472 || NET6_0_OR_GREATER
                 static Dictionary<string, object> AdditionalEcdhEsHeaderParameters(JsonWebKey publicKeySender)
                 {
+                    // Create the Ephemeral Public Key (Epk) header parameter as a JWK.
                     var epkJObject = new JObject();
                     epkJObject.Add(JsonWebKeyParameterNames.Kty, publicKeySender.Kty);
                     epkJObject.Add(JsonWebKeyParameterNames.Crv, publicKeySender.Crv);
                     epkJObject.Add(JsonWebKeyParameterNames.X, publicKeySender.X);
                     epkJObject.Add(JsonWebKeyParameterNames.Y, publicKeySender.Y);
 
+                    // Set the Ephemeral Public Key (Epk) header parameter, along with the
+                    // Agreement PartyUInfo (Apu) and Agreement PartyVInfo (Apv) header parameters
+                    // to ensure that the ECDH-ES key agreement is successful.
                     Dictionary<string, object> additionalHeaderParams = new Dictionary<string, object>()
                     {
                         { JsonWebTokens.JwtHeaderParameterNames.Apu, Guid.NewGuid().ToString() },
