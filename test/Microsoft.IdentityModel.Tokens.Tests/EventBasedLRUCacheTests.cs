@@ -359,7 +359,7 @@ namespace Microsoft.IdentityModel.Tokens.Tests
             return true;
         }
 
-        [Fact(Skip = "Large test meant to be run manually.")]
+        [Fact]
         public async Task CacheOverflowTestMultithreaded()
         {
             TestUtilities.WriteHeader($"{this}.CacheOverflowTestMultithreaded");
