@@ -829,10 +829,37 @@ namespace Microsoft.IdentityModel.TestUtils
 
         /// <summary>
         /// SamlClaims require the ability to split into name / namespace
+        /// The <see cref="ClaimTypes.Role"/> claims are added as a list
         /// </summary>
         public static Dictionary<string, object> SamlClaimsDictionary
         {
-            get => SamlClaims.ToDictionary(x => x.Type, x => (object)x.Value);
+            get
+            {
+                Dictionary<string, object> dictionary = new Dictionary<string, object>();
+
+                foreach (Claim claim in SamlClaims)
+                {
+                    if (dictionary.ContainsKey(claim.Type))
+                    {
+                        if (claim.Type == ClaimTypes.Role)
+                        {
+                            ((List<string>)dictionary[claim.Type]).Add(claim.Value);
+                        }
+                    }
+                    else
+                    {
+                        if (claim.Type == ClaimTypes.Role)
+                        {
+                            dictionary[claim.Type] = new List<string> { claim.Value };
+                        }
+                        else
+                        {
+                            dictionary[claim.Type] = claim.Value;
+                        }
+                    }
+                }
+                return dictionary;
+            }
         }
 
         /// <summary>
