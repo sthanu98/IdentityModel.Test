@@ -8,6 +8,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
+using System.Xml.Linq;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.IdentityModel.Tokens.Json;
 using Microsoft.IdentityModel.Tokens.Saml;
@@ -398,38 +399,6 @@ namespace Microsoft.IdentityModel.TestUtils
             }.ToString();
         }
 
-        public static string PayloadString
-        {
-            get => new JObject()
-            {
-                { JwtRegisteredClaimNames.Aud, Audience },
-                { JwtRegisteredClaimNames.Azp, Azp },
-                { JwtRegisteredClaimNames.Email, "Bob@contoso.com" },
-                { JwtRegisteredClaimNames.Exp, EpochTime.GetIntDate(Expires).ToString() },
-                { JwtRegisteredClaimNames.GivenName, "Bob" },
-                { JwtRegisteredClaimNames.Iss, Issuer },
-                { JwtRegisteredClaimNames.Iat, EpochTime.GetIntDate(IssueInstant).ToString() },
-                { JwtRegisteredClaimNames.Jti, Jti },
-                { JwtRegisteredClaimNames.Nbf, EpochTime.GetIntDate(NotBefore).ToString()},
-            }.ToString(Formatting.None);
-        }
-
-        public static string PayloadStringMultipleAudiences
-        {
-            get => new JObject()
-            {
-                { JwtRegisteredClaimNames.Aud, JArray.FromObject(Audiences) },
-                { JwtRegisteredClaimNames.Azp, Azp },
-                { JwtRegisteredClaimNames.Email, "Bob@contoso.com" },
-                { JwtRegisteredClaimNames.Exp, EpochTime.GetIntDate(Expires).ToString() },
-                { JwtRegisteredClaimNames.GivenName, "Bob" },
-                { JwtRegisteredClaimNames.Iss, Issuer },
-                { JwtRegisteredClaimNames.Iat, EpochTime.GetIntDate(IssueInstant).ToString() },
-                { JwtRegisteredClaimNames.Jti, Jti },
-                { JwtRegisteredClaimNames.Nbf, EpochTime.GetIntDate(NotBefore).ToString()},
-            }.ToString(Formatting.None);
-        }
-
         public static List<Claim> PayloadClaims
         {
             get => new List<Claim>()
@@ -484,24 +453,7 @@ namespace Microsoft.IdentityModel.TestUtils
 
         public static Dictionary<string, object> PayloadJsonDictionary
         {
-            get => new Dictionary<string, object>()
-            {
-                { JwtRegisteredClaimNames.Aud, Audience },
-                { JwtRegisteredClaimNames.Iss, Issuer },
-                { "ClaimValueTypes.String", "ClaimValueTypes.String.Value" },
-                { "ClaimValueTypes.Boolean.true", true },
-                { "ClaimValueTypes.Boolean.false", false },
-                { "ClaimValueTypes.Double", 123.4 },
-                { "ClaimValueTypes.DateTime.IS8061", DateTime.TryParse("2019-11-15T14:31:21.6101326Z", out DateTime dateTimeValue1) ? dateTimeValue1.ToUniversalTime() : new DateTime()},
-                { "ClaimValueTypes.DateTime", DateTime.TryParse("2019-11-15", out DateTime dateTimeValue2) ? dateTimeValue2 : new DateTime()},
-                { "ClaimValueTypes.JsonClaimValueTypes.Json1", JObject.Parse(@"{""jsonProperty1"":""jsonvalue1""}") },
-                { "ClaimValueTypes.JsonClaimValueTypes.Json2", JObject.Parse(@"{""jsonProperty2"":""jsonvalue2""}") },
-                { "ClaimValueTypes.JsonClaimValueTypes.JsonNull", "" },
-                { "ClaimValueTypes.JsonClaimValueTypes.JsonArray1", JArray.Parse(@"[1,2,3]") },
-                { "ClaimValueTypes.JsonClaimValueTypes.JsonArray2", JArray.Parse(@"[1,""2"",3]") },
-                { "ClaimValueTypes.JsonClaimValueTypes.Integer1", 1 },
-                { JwtRegisteredClaimNames.Exp, EpochTime.GetIntDate(Expires).ToString() }
-            };
+            get => PayloadJsonClaims.ToDictionary(x => x.Type, x => (object)x.Value);
         }
 
         public static ClaimsIdentity PayloadClaimsIdentity
@@ -509,9 +461,9 @@ namespace Microsoft.IdentityModel.TestUtils
             get => new CaseSensitiveClaimsIdentity(PayloadClaims, "AuthenticationTypes.Federation");
         }
 
-        public static Dictionary<string, object> PayloadDictionary
+        public static JObject PayloadAsJObject
         {
-            get => new Dictionary<string, object>()
+            get => new JObject()
             {
                 { JwtRegisteredClaimNames.Aud, Audience },
                 { JwtRegisteredClaimNames.Azp, Azp },
@@ -525,11 +477,21 @@ namespace Microsoft.IdentityModel.TestUtils
             };
         }
 
-        public static Dictionary<string, object> PayloadDictionaryMultipleAudiences
+        public static string PayloadString
         {
-            get => new Dictionary<string, object>()
+            get => PayloadAsJObject.ToString(Formatting.None);
+        }
+
+        public static Dictionary<string, object> PayloadDictionary
+        {
+            get => PayloadAsJObject.ToObject<Dictionary<string, object>>();
+        }
+
+        public static JObject PayloadAsJObjectMultipleAudiences
+        {
+            get => new JObject()
             {
-                { JwtRegisteredClaimNames.Aud, JsonSerializerPrimitives.CreateJsonElement(Default.Audiences) },
+                { JwtRegisteredClaimNames.Aud, JArray.FromObject(Audiences) },
                 { JwtRegisteredClaimNames.Azp, Azp },
                 { JwtRegisteredClaimNames.Email, "Bob@contoso.com" },
                 { JwtRegisteredClaimNames.Exp, EpochTime.GetIntDate(Expires).ToString() },
@@ -539,6 +501,16 @@ namespace Microsoft.IdentityModel.TestUtils
                 { JwtRegisteredClaimNames.Jti, Jti },
                 { JwtRegisteredClaimNames.Nbf, EpochTime.GetIntDate(NotBefore).ToString()},
             };
+        }
+
+        public static string PayloadStringMultipleAudiences
+        {
+            get => PayloadAsJObjectMultipleAudiences.ToString(Formatting.None);
+        }
+
+        public static Dictionary<string, object> PayloadDictionaryMultipleAudiences
+        {
+            get => PayloadAsJObjectMultipleAudiences.ToObject<Dictionary<string, object>>();
         }
 
         public static Dictionary<string, object> RemoveClaim(this Dictionary<string, object> payloadClaims, string claimName)
@@ -862,17 +834,7 @@ namespace Microsoft.IdentityModel.TestUtils
         /// </summary>
         public static Dictionary<string, object> SamlClaimsDictionary
         {
-            get => new Dictionary<string, object>()
-            {
-                { ClaimTypes.Country, "USA"},
-                { ClaimTypes.NameIdentifier, "Bob" },
-                { ClaimTypes.Email, "Bob@contoso.com" },
-                { ClaimTypes.GivenName, "Bob" },
-                { ClaimTypes.HomePhone, "555.1212" },
-                { ClaimTypes.Role, new List<string>{"Developer", "Sales" } },
-                { ClaimTypes.StreetAddress, "123AnyWhereStreet\r\nSomeTown/r/nUSA" },
-                { ClaimsIdentity.DefaultNameClaimType, "Jean-S�bastien" }
-            };
+            get => SamlClaims.ToDictionary(x => x.Type, x => (object)x.Value);
         }
 
         /// <summary>
