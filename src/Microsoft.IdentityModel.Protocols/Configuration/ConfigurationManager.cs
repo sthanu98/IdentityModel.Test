@@ -22,6 +22,7 @@ namespace Microsoft.IdentityModel.Protocols
         private DateTimeOffset _lastRequestRefresh = DateTimeOffset.MinValue;
         private bool _isFirstRefreshRequest = true;
         private readonly SemaphoreSlim _configurationNullLock = new SemaphoreSlim(1);
+        private readonly ReaderWriterLockSlim _syncLock = new();
 
         private readonly IDocumentRetriever _docRetriever;
         private readonly IConfigurationRetriever<T> _configRetriever;
@@ -147,8 +148,12 @@ namespace Microsoft.IdentityModel.Protocols
         /// <remarks>If the time since the last call is less than <see cref="BaseConfigurationManager.AutomaticRefreshInterval"/> then <see cref="IConfigurationRetriever{T}.GetConfigurationAsync"/> is not called and the current Configuration is returned.</remarks>
         public virtual async Task<T> GetConfigurationAsync(CancellationToken cancel)
         {
-            if (_currentConfiguration != null && _syncAfter > DateTimeOffset.UtcNow)
-                return _currentConfiguration;
+            _syncLock.EnterReadLock();
+            T currentConfiguration = _currentConfiguration;
+            DateTimeOffset syncAfter = _syncAfter;
+            _syncLock.ExitReadLock();
+            if (currentConfiguration != null && syncAfter > DateTimeOffset.UtcNow)
+                return currentConfiguration;
 
             Exception fetchMetadataFailure = null;
 
@@ -159,13 +164,16 @@ namespace Microsoft.IdentityModel.Protocols
             // else
             //   if task is running, return the current configuration
             //   else kick off task to update current configuration
-            if (_currentConfiguration == null)
+            if (currentConfiguration == null)
             {
                 await _configurationNullLock.WaitAsync(cancel).ConfigureAwait(false);
-                if (_currentConfiguration != null)
+                _syncLock.EnterReadLock();
+                currentConfiguration = _currentConfiguration;
+                _syncLock.ExitReadLock();
+                if (currentConfiguration != null)
                 {
                     _configurationNullLock.Release();
-                    return _currentConfiguration;
+                    return currentConfiguration;
                 }
 
 #pragma warning disable CA1031 // Do not catch general exception types
@@ -218,16 +226,20 @@ namespace Microsoft.IdentityModel.Protocols
                 }
             }
 
+            _syncLock.EnterReadLock();
+            currentConfiguration = _currentConfiguration;
+            _syncLock.ExitReadLock();
+
             // If metadata exists return it.
-            if (_currentConfiguration != null)
-                return _currentConfiguration;
+            if (currentConfiguration != null)
+                return currentConfiguration;
 
             throw LogHelper.LogExceptionMessage(
                 new InvalidOperationException(
                     LogHelper.FormatInvariant(
                         LogMessages.IDX20803,
                         LogHelper.MarkAsNonPII(MetadataAddress ?? "null"),
-                        LogHelper.MarkAsNonPII(_syncAfter),
+                        LogHelper.MarkAsNonPII(syncAfter),
                         LogHelper.MarkAsNonPII(fetchMetadataFailure)),
                     fetchMetadataFailure));
         }
@@ -284,9 +296,11 @@ namespace Microsoft.IdentityModel.Protocols
 
         private void UpdateConfiguration(T configuration)
         {
+            _syncLock.EnterWriteLock();
             _currentConfiguration = configuration;
             _syncAfter = DateTimeUtil.Add(DateTime.UtcNow, AutomaticRefreshInterval +
                 TimeSpan.FromSeconds(new Random().Next((int)AutomaticRefreshInterval.TotalSeconds / 20)));
+            _syncLock.ExitWriteLock();
         }
 
         /// <summary>
