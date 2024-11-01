@@ -48,6 +48,19 @@ namespace Microsoft.IdentityModel.Tokens.Saml
                 return conditionsResult.UnwrapError().AddStackFrame(StackFrames.AssertionConditionsValidationFailed);
             }
 
+            var issuerValidationResult = await validationParameters.IssuerValidatorAsync(
+                samlToken.Issuer,
+                samlToken,
+                validationParameters,
+                callContext,
+                cancellationToken).ConfigureAwait(false);
+
+            if (!issuerValidationResult.IsValid)
+            {
+                StackFrames.IssuerValidationFailed ??= new StackFrame(true);
+                return issuerValidationResult.UnwrapError().AddStackFrame(StackFrames.IssuerValidationFailed);
+            }
+
             return new ValidatedToken(samlToken, this, validationParameters);
         }
 
