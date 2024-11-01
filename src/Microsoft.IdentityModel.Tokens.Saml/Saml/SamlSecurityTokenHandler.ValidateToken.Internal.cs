@@ -61,6 +61,9 @@ namespace Microsoft.IdentityModel.Tokens.Saml
                 return issuerValidationResult.UnwrapError().AddStackFrame(StackFrames.IssuerValidationFailed);
             }
 
+            // To be replaced with signature validation when the PR is merged.
+            samlToken.SigningKey = validationParameters.IssuerSigningKeys.First();
+
             var issuerSigningKeyValidationResult = validationParameters.IssuerSigningKeyValidator(
                 samlToken.SigningKey,
                 samlToken,
