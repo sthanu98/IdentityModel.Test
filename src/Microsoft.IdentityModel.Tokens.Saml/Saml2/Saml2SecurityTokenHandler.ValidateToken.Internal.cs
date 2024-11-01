@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.IdentityModel.Tokens.Saml;
@@ -62,6 +63,9 @@ namespace Microsoft.IdentityModel.Tokens.Saml2
                 StackFrames.IssuerValidationFailed ??= new StackFrame(true);
                 return validatedIssuerResult.UnwrapError().AddStackFrame(StackFrames.IssuerValidationFailed);
             }
+
+            // To be replaced with signature validation when the PR is merged.
+            samlToken.SigningKey = validationParameters.IssuerSigningKeys.First();
 
             var issuerSigningKeyValidationResult = validationParameters.IssuerSigningKeyValidator(
                 samlToken.SigningKey,
