@@ -63,6 +63,19 @@ namespace Microsoft.IdentityModel.Tokens.Saml2
                 return validatedIssuerResult.UnwrapError().AddStackFrame(StackFrames.IssuerValidationFailed);
             }
 
+            var issuerSigningKeyValidationResult = validationParameters.IssuerSigningKeyValidator(
+                samlToken.SigningKey,
+                samlToken,
+                validationParameters,
+                null,
+                callContext);
+
+            if (!issuerSigningKeyValidationResult.IsValid)
+            {
+                StackFrames.IssuerSigningKeyValidationFailed ??= new StackFrame(true);
+                return issuerSigningKeyValidationResult.UnwrapError().AddStackFrame(StackFrames.IssuerSigningKeyValidationFailed);
+            }
+
             return new ValidatedToken(samlToken, this, validationParameters);
         }
 
