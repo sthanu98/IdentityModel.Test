@@ -14,6 +14,8 @@ namespace Microsoft.IdentityModel.Tokens.Saml
             // Stack frames from ValidateTokenAsync using SecurityToken
             internal static StackFrame? TokenNull;
             internal static StackFrame? TokenValidationParametersNull;
+            internal static StackFrame? IssuerValidationFailed;
+            internal static StackFrame? IssuerSigningKeyValidationFailed;
 
             // Stack frames from ValidateConditions
             internal static StackFrame? AudienceValidationFailed;
@@ -22,8 +24,6 @@ namespace Microsoft.IdentityModel.Tokens.Saml
             internal static StackFrame? AssertionConditionsValidationFailed;
             internal static StackFrame? LifetimeValidationFailed;
             internal static StackFrame? OneTimeUseValidationFailed;
-
-            internal static StackFrame? IssuerValidationFailed;
         }
     }
 }
