@@ -5,7 +5,6 @@
     <DotNetCoreAppRuntimeVersion>2.1.30</DotNetCoreAppRuntimeVersion>
     <MicrosoftAzureKeyVaultCryptographyVersion>3.0.5</MicrosoftAzureKeyVaultCryptographyVersion>
     <MicrosoftNETTestSdkVersion>17.11.0</MicrosoftNETTestSdkVersion>
-    <MicrosoftRestClientRuntime>2.3.24</MicrosoftRestClientRuntime>
     <NetStandardVersion>2.0.3</NetStandardVersion>
     <NewtonsoftVersion>13.0.3</NewtonsoftVersion>
     <SystemNetHttp>4.3.4</SystemNetHttp>
