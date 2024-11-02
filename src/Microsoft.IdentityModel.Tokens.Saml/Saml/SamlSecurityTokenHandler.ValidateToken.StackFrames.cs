@@ -24,6 +24,7 @@ namespace Microsoft.IdentityModel.Tokens.Saml
             internal static StackFrame? OneTimeUseValidationFailed;
 
             internal static StackFrame? IssuerValidationFailed;
+            internal static StackFrame? SignatureValidationFailed;
         }
     }
 }
