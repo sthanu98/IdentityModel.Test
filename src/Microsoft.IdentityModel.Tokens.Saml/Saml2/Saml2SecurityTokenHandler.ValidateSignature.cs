@@ -38,7 +38,7 @@ namespace Microsoft.IdentityModel.Tokens.Saml2
             if (validationParameters.SignatureValidator is not null)
                 return validationParameters.SignatureValidator(samlToken, validationParameters, null, callContext);
 
-            // If the user wants to accept unsigned tokens, they must implement the delegate
+            // If the user wants to accept unsigned tokens, they must set validationParameters.SignatureValidator
             if (samlToken.Assertion.Signature is null)
                 return new XmlValidationError(
                     new MessageDetail(
