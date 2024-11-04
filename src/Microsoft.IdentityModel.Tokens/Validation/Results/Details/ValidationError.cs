@@ -252,7 +252,7 @@ namespace Microsoft.IdentityModel.Tokens
         /// <param name="lineNumber">The line number from which this method is called. CAptured automatically by default.</param>
         /// <param name="skipFrames">The number of stack frames to skip when capturing. Used to avoid capturing this method and get the caller instead.</param>
         /// <returns>The updated object.</returns>
-        public ValidationError AddCurrentStackFrame([CallerFilePath] string filePath = "", [CallerLineNumber] int lineNumber = 0, int skipFrames = 1)
+        internal ValidationError AddCurrentStackFrame([CallerFilePath] string filePath = "", [CallerLineNumber] int lineNumber = 0, int skipFrames = 1)
         {
             // We add 1 to the skipped frames to skip the current method
             StackFrames.Add(GetCurrentStackFrame(filePath, lineNumber, skipFrames + 1));
@@ -268,7 +268,7 @@ namespace Microsoft.IdentityModel.Tokens
         /// <param name="skipFrames">The number of stack frames to skip when capturing. Used to avoid capturing this method and get the caller instead.</param>
         /// <returns>The captured stack frame.</returns>
         /// <remarks>If this is called from a helper method, consider adding an extra skip frame to avoid capturing the helper instead.</remarks>
-        public static StackFrame GetCurrentStackFrame(
+        internal static StackFrame GetCurrentStackFrame(
             [CallerFilePath] string filePath = "", [CallerLineNumber] int lineNumber = 0, int skipFrames = 1)
         {
             // String is allocated, but it goes out of scope immediately after the call
