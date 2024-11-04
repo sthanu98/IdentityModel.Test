@@ -40,7 +40,7 @@ namespace Microsoft.IdentityModel.Tokens.Saml
                     StackFrames.TokenValidationParametersNull);
             }
 
-            var conditionsResult = ValidateConditions(samlToken, validationParameters, callContext);
+            ValidationResult<ValidatedConditions> conditionsResult = ValidateConditions(samlToken, validationParameters, callContext);
 
             if (!conditionsResult.IsValid)
             {
@@ -48,7 +48,7 @@ namespace Microsoft.IdentityModel.Tokens.Saml
                 return conditionsResult.UnwrapError().AddStackFrame(StackFrames.AssertionConditionsValidationFailed);
             }
 
-            var issuerValidationResult = await validationParameters.IssuerValidatorAsync(
+            ValidationResult<ValidatedIssuer> issuerValidationResult = await validationParameters.IssuerValidatorAsync(
                 samlToken.Issuer,
                 samlToken,
                 validationParameters,
@@ -61,15 +61,15 @@ namespace Microsoft.IdentityModel.Tokens.Saml
                 return issuerValidationResult.UnwrapError().AddStackFrame(StackFrames.IssuerValidationFailed);
             }
 
-            var signatureValidationResult = ValidateSignature(samlToken, validationParameters, callContext);
-            
+            ValidationResult<SecurityKey> signatureValidationResult = ValidateSignature(samlToken, validationParameters, callContext);
+
             if (!signatureValidationResult.IsValid)
             {
                 StackFrames.SignatureValidationFailed ??= new StackFrame(true);
                 return signatureValidationResult.UnwrapError().AddStackFrame(StackFrames.SignatureValidationFailed);
             }
 
-            var issuerSigningKeyValidationResult = validationParameters.IssuerSigningKeyValidator(
+            ValidationResult<ValidatedSigningKeyLifetime> issuerSigningKeyValidationResult = validationParameters.IssuerSigningKeyValidator(
                 samlToken.SigningKey,
                 samlToken,
                 validationParameters,
