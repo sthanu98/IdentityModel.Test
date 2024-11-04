@@ -8,12 +8,11 @@ using Microsoft.IdentityModel.TestUtils;
 using Microsoft.IdentityModel.Tokens.Saml2;
 using Xunit;
 
+#nullable enable
 namespace Microsoft.IdentityModel.Tokens.Saml.Tests
 {
-#nullable enable
     public partial class Saml2SecurityTokenHandlerTests
     {
-
         [Theory, MemberData(nameof(ValidateTokenAsync_IssuerSigningKey_TestCases), DisableDiscoveryEnumeration = true)]
         public async Task ValidateTokenAsync_IssuerSigningKeyComparison(ValidateTokenAsyncIssuerSigningKeyTheoryData theoryData)
         {
@@ -75,7 +74,7 @@ namespace Microsoft.IdentityModel.Tokens.Saml.Tests
 
                 var theoryData = new TheoryData<ValidateTokenAsyncIssuerSigningKeyTheoryData>();
 
-                theoryData.Add(new ValidateTokenAsyncIssuerSigningKeyTheoryData("Valid_AudiencesMatch")
+                theoryData.Add(new ValidateTokenAsyncIssuerSigningKeyTheoryData("Valid_IssuerSigningKeyIsValid")
                 {
                     SigningCredentials = KeyingMaterial.DefaultX509SigningCreds_2048_RsaSha2_Sha2,
                     TokenValidationParameters = CreateTokenValidationParameters(KeyingMaterial.DefaultX509SigningCreds_2048_RsaSha2_Sha2.Key),
