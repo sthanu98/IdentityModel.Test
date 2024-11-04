@@ -78,8 +78,8 @@ namespace Microsoft.IdentityModel.Tokens.Saml
             }
 
             bool canMatchKey = samlToken.Assertion.Signature.KeyInfo != null;
-            List<ValidationError> errors = new();
-            StringBuilder keysAttempted = new();
+            List<ValidationError>? errors = null;
+            StringBuilder? keysAttempted = null;
 
             if (keys is not null)
             {
@@ -95,7 +95,7 @@ namespace Microsoft.IdentityModel.Tokens.Saml
 
                     if (!algorithmValidationResult.IsValid)
                     {
-                        errors.Add(algorithmValidationResult.UnwrapError());
+                        (errors ??= new()).Add(algorithmValidationResult.UnwrapError());
                     }
                     else
                     {
@@ -112,11 +112,11 @@ namespace Microsoft.IdentityModel.Tokens.Saml
                         }
                         else
                         {
-                            errors.Add(validationError.AddStackFrame(new StackFrame()));
+                            (errors ??= new()).Add(validationError.AddStackFrame(new StackFrame()));
                         }
                     }
 
-                    keysAttempted.Append(key.ToString());
+                    (keysAttempted ??= new()).Append(key.ToString());
                     if (canMatchKey && !keyMatched && key.KeyId is not null && samlToken.Assertion.Signature.KeyInfo is not null)
                         keyMatched = samlToken.Assertion.Signature.KeyInfo.MatchesKey(key);
                 }
@@ -126,7 +126,7 @@ namespace Microsoft.IdentityModel.Tokens.Saml
                 return new XmlValidationError(
                     new MessageDetail(
                         TokenLogMessages.IDX10514,
-                        keysAttempted.ToString(),
+                        keysAttempted?.ToString(),
                         samlToken.Assertion.Signature.KeyInfo,
                         GetErrorStrings(errors),
                         samlToken),
@@ -134,11 +134,11 @@ namespace Microsoft.IdentityModel.Tokens.Saml
                     typeof(SecurityTokenInvalidSignatureException),
                     new StackFrame(true));
 
-            if (keysAttempted.Length > 0)
+            if ((keysAttempted?.Length ?? 0) > 0)
                 return new XmlValidationError(
                     new MessageDetail(
                         TokenLogMessages.IDX10512,
-                        keysAttempted.ToString(),
+                        keysAttempted!.ToString(),
                         GetErrorStrings(errors),
                         samlToken),
                     ValidationFailureType.SignatureValidationFailed,
@@ -152,12 +152,20 @@ namespace Microsoft.IdentityModel.Tokens.Saml
                 new StackFrame(true));
         }
 
-        private static string GetErrorStrings(List<ValidationError> errors)
+        private static string GetErrorStrings(List<ValidationError>? errors)
         {
+            // This method is called if there are errors in the signature validation process.
+            // This check is there to account for the optional parameter.
+            if (errors is null)
+                return string.Empty;
+
+            if (errors.Count == 1)
+                return errors[0].MessageDetail.Message;
+
             StringBuilder sb = new();
             for (int i = 0; i < errors.Count; i++)
             {
-                sb.AppendLine(errors[i].ToString());
+                sb.AppendLine(errors[i].MessageDetail.Message);
             }
 
             return sb.ToString();
