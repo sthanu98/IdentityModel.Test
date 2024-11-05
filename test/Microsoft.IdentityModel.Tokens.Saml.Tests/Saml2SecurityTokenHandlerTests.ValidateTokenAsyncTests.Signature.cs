@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.IdentityModel.TestUtils;
@@ -55,10 +54,7 @@ namespace Microsoft.IdentityModel.Tokens.Saml.Tests
                     var tokenValidationResultException = tokenValidationResult.Exception;
                     var validationResultException = validationResult.UnwrapError().GetException();
 
-                    if (theoryData.TestId == "Invalid_TokenSignedWithDifferentKey_KeyIdPresent_TryAllKeysFalse")
-                        Console.WriteLine($"tokenValidationResultException: {tokenValidationResultException}");
-
-                    theoryData.ExpectedException.ProcessException(tokenValidationResult.Exception, context);
+                    theoryData.ExpectedException.ProcessException(tokenValidationResultException, context);
                     theoryData.ExpectedExceptionValidationParameters!.ProcessException(validationResultException, context);
                 }
 
