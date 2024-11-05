@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Text;
 using Microsoft.IdentityModel.Tokens.Saml;
 using Microsoft.IdentityModel.Xml;
@@ -24,14 +23,14 @@ namespace Microsoft.IdentityModel.Tokens.Saml2
             {
                 return ValidationError.NullParameter(
                     nameof(samlToken),
-                    new StackFrame(true));
+                    ValidationError.GetCurrentStackFrame());
             }
 
             if (validationParameters is null)
             {
                 return ValidationError.NullParameter(
                     nameof(validationParameters),
-                    new StackFrame(true));
+                    ValidationError.GetCurrentStackFrame());
             }
 
             // Delegate is set by the user, we call it and return the result.
@@ -46,7 +45,7 @@ namespace Microsoft.IdentityModel.Tokens.Saml2
                         samlToken.Assertion.CanonicalString),
                     ValidationFailureType.SignatureValidationFailed,
                     typeof(SecurityTokenValidationException),
-                    new StackFrame(true));
+                    ValidationError.GetCurrentStackFrame());
 
             IList<SecurityKey>? keys = null;
             SecurityKey? resolvedKey = null;
@@ -67,55 +66,38 @@ namespace Microsoft.IdentityModel.Tokens.Saml2
                 resolvedKey = SamlTokenUtilities.ResolveTokenSigningKey(samlToken.Assertion.Signature.KeyInfo, validationParameters);
             }
 
-            if (resolvedKey is null)
+            bool canMatchKey = samlToken.Assertion.Signature.KeyInfo != null;
+            List<ValidationError>? errors = null;
+            ValidationError? error = null;
+            StringBuilder? keysAttempted = null;
+
+            if (resolvedKey is not null)
+            {
+                keyMatched = true;
+                var result = ValidateSignatureUsingKey(resolvedKey, samlToken, validationParameters, callContext);
+                if (result.IsValid)
+                    return result;
+
+                error = result.UnwrapError();
+            }
+            else
             {
                 if (validationParameters.TryAllIssuerSigningKeys)
                     keys = validationParameters.IssuerSigningKeys;
             }
-            else
-            {
-                keys = [resolvedKey];
-                keyMatched = true;
-            }
-
-            bool canMatchKey = samlToken.Assertion.Signature.KeyInfo != null;
-            List<ValidationError>? errors = null;
-            StringBuilder? keysAttempted = null;
 
             if (keys is not null)
             {
+                // Control reaches here only if the key could not be resolved and TryAllIssuerSigningKeys is set to true.
+                // We try all the keys in the list and return the first valid key. This is the degenerate case.
                 for (int i = 0; i < keys.Count; i++)
                 {
                     SecurityKey key = keys[i];
-                    ValidationResult<string> algorithmValidationResult = validationParameters.AlgorithmValidator(
-                        samlToken.Assertion.Signature.SignedInfo.SignatureMethod,
-                        key,
-                        samlToken,
-                        validationParameters,
-                        callContext);
+                    var result = ValidateSignatureUsingKey(key, samlToken, validationParameters, callContext);
+                    if (result.IsValid)
+                        return result;
 
-                    if (!algorithmValidationResult.IsValid)
-                    {
-                        (errors ??= new()).Add(algorithmValidationResult.UnwrapError());
-                    }
-                    else
-                    {
-                        var validationError = samlToken.Assertion.Signature.Verify(
-                        key,
-                        validationParameters.CryptoProviderFactory ?? key.CryptoProviderFactory,
-                        callContext);
-
-                        if (validationError is null)
-                        {
-                            samlToken.SigningKey = key;
-
-                            return key;
-                        }
-                        else
-                        {
-                            (errors ??= new()).Add(validationError.AddStackFrame(new StackFrame()));
-                        }
-                    }
+                    (errors ??= new()).Add(result.UnwrapError());
 
                     (keysAttempted ??= new()).Append(key.ToString());
                     if (canMatchKey && !keyMatched && key.KeyId is not null && samlToken.Assertion.Signature.KeyInfo is not null)
@@ -129,34 +111,76 @@ namespace Microsoft.IdentityModel.Tokens.Saml2
                         TokenLogMessages.IDX10514,
                         keysAttempted?.ToString(),
                         samlToken.Assertion.Signature.KeyInfo,
-                        GetErrorStrings(errors),
+                        GetErrorStrings(error, errors),
                         samlToken),
                     ValidationFailureType.SignatureValidationFailed,
                     typeof(SecurityTokenInvalidSignatureException),
-                    new StackFrame(true));
+                    ValidationError.GetCurrentStackFrame());
 
-            if ((keysAttempted?.Length ?? 0) > 0)
+            string? keysAttemptedString = null;
+            if (resolvedKey is not null)
+                keysAttemptedString = resolvedKey.ToString();
+            else if ((keysAttempted?.Length ?? 0) > 0)
+                keysAttemptedString = keysAttempted!.ToString();
+
+            if (keysAttemptedString is not null)
                 return new XmlValidationError(
                     new MessageDetail(
                         TokenLogMessages.IDX10512,
-                        keysAttempted!.ToString(),
-                        GetErrorStrings(errors),
+                        keysAttemptedString,
+                        GetErrorStrings(error, errors),
                         samlToken),
                     ValidationFailureType.SignatureValidationFailed,
                     typeof(SecurityTokenSignatureKeyNotFoundException),
-                    new StackFrame(true));
+                    ValidationError.GetCurrentStackFrame());
 
             return new XmlValidationError(
                 new MessageDetail(TokenLogMessages.IDX10500),
                 ValidationFailureType.SignatureValidationFailed,
                 typeof(SecurityTokenSignatureKeyNotFoundException),
-                new StackFrame(true));
+                ValidationError.GetCurrentStackFrame());
         }
 
-        private static string GetErrorStrings(List<ValidationError>? errors)
+        private static ValidationResult<SecurityKey> ValidateSignatureUsingKey(SecurityKey key, Saml2SecurityToken samlToken, ValidationParameters validationParameters, CallContext callContext)
+        {
+            ValidationResult<string> algorithmValidationResult = validationParameters.AlgorithmValidator(
+                        samlToken.Assertion.Signature.SignedInfo.SignatureMethod,
+                        key,
+                        samlToken,
+                        validationParameters,
+                        callContext);
+
+            if (!algorithmValidationResult.IsValid)
+            {
+                return algorithmValidationResult.UnwrapError().AddCurrentStackFrame();
+            }
+            else
+            {
+                var validationError = samlToken.Assertion.Signature.Verify(
+                key,
+                validationParameters.CryptoProviderFactory ?? key.CryptoProviderFactory,
+                callContext);
+
+                if (validationError is null)
+                {
+                    samlToken.SigningKey = key;
+
+                    return key;
+                }
+                else
+                {
+                    return validationError.AddCurrentStackFrame();
+                }
+            }
+        }
+
+        private static string GetErrorStrings(ValidationError? error, List<ValidationError>? errors)
         {
             // This method is called if there are errors in the signature validation process.
             // This check is there to account for the optional parameter.
+            if (error is not null)
+                return error.MessageDetail.Message;
+
             if (errors is null)
                 return string.Empty;
 
