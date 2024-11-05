@@ -59,6 +59,8 @@ namespace Microsoft.IdentityModel.Benchmarks
 
             _claimsIdentity = (await _jsonWebTokenHandler.ValidateTokenAsync(_jwsWithExtendedClaims, _tokenValidationParameters).ConfigureAwait(false)).ClaimsIdentity;
             _newClaimsIdentity = (await _jsonWebTokenHandler.ValidateTokenAsync(_jwsWithExtendedClaims, _newTokenValidationParameters).ConfigureAwait(false)).ClaimsIdentity as SecurityTokenClaimsIdentity;
+            _ = _claimsIdentity.Claims;
+            _ = _newClaimsIdentity.Claims;
         }
 
         [Benchmark(Baseline = true), BenchmarkCategory("FindFirst")]
