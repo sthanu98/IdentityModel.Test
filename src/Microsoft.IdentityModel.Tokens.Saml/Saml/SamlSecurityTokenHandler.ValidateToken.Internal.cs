@@ -14,9 +14,26 @@ namespace Microsoft.IdentityModel.Tokens.Saml
     /// </summary>
     public partial class SamlSecurityTokenHandler : SecurityTokenHandler
     {
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         internal async Task<ValidationResult<ValidatedToken>> ValidateTokenAsync(
-#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
+            string token,
+            ValidationParameters validationParameters,
+            CallContext callContext,
+            CancellationToken cancellationToken)
+        {
+            if (token is null)
+                return ValidationError.NullParameter(nameof(token), ValidationError.GetCurrentStackFrame());
+
+            if (validationParameters is null)
+                return ValidationError.NullParameter(nameof(validationParameters), ValidationError.GetCurrentStackFrame());
+
+            var tokenReadingResult = ReadSamlToken(token, callContext);
+            if (!tokenReadingResult.IsValid)
+                return tokenReadingResult.UnwrapError().AddCurrentStackFrame();
+
+            return await ValidateTokenAsync(tokenReadingResult.UnwrapResult(), validationParameters, callContext, cancellationToken).ConfigureAwait(false);
+        }
+
+        internal async Task<ValidationResult<ValidatedToken>> ValidateTokenAsync(
             SamlSecurityToken samlToken,
             ValidationParameters validationParameters,
             CallContext callContext,
