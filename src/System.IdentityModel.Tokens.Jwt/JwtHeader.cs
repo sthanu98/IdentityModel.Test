@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
+using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
 
@@ -132,38 +133,48 @@ namespace System.IdentityModel.Tokens.Jwt
         /// <param name="tokenType"> will be added as the value for the 'typ' claim in the header. If it is null or empty <see cref="JwtConstants.HeaderType"/> will be used as token type</param>
         /// <param name="additionalInnerHeaderClaims">Defines the dictionary containing any custom header claims that need to be added to the inner JWT token header.</param>
         /// <param name="includeKeyIdInHeader">Controls if key identifying information should be stored in the header</param>
+        /// <param name="excludedDefaultHeaderClaims">Default header claims to exclude</param>
         internal JwtHeader(
             SigningCredentials signingCredentials,
             IDictionary<string, string> outboundAlgorithmMap,
             string tokenType,
             IDictionary<string, object> additionalInnerHeaderClaims,
-            bool includeKeyIdInHeader)
+            bool includeKeyIdInHeader,
+            ISet<string> excludedDefaultHeaderClaims)
             : base(StringComparer.Ordinal)
         {
             if (signingCredentials == null)
-                this[JwtHeaderParameterNames.Alg] = SecurityAlgorithms.None;
-
+            {
+                if (JsonWebTokenHandler.IncludeDefaultHeaderClaim(JwtHeaderParameterNames.Alg, excludedDefaultHeaderClaims))
+                    this[JwtHeaderParameterNames.Alg] = SecurityAlgorithms.None;
+            }
             else
             {
-                if (outboundAlgorithmMap != null && outboundAlgorithmMap.TryGetValue(signingCredentials.Algorithm, out string outboundAlg))
-                    Alg = outboundAlg;
-                else
-                    Alg = signingCredentials.Algorithm;
+                if (JsonWebTokenHandler.IncludeDefaultHeaderClaim(JwtHeaderParameterNames.Alg, excludedDefaultHeaderClaims))
+                {
+                    if (outboundAlgorithmMap != null && outboundAlgorithmMap.TryGetValue(signingCredentials.Algorithm, out string outboundAlg))
+                        Alg = outboundAlg;
+                    else
+                        Alg = signingCredentials.Algorithm;
+                }
 
                 if (includeKeyIdInHeader)
                 {
-                    if (!string.IsNullOrEmpty(signingCredentials.Key.KeyId))
+                    if (!string.IsNullOrEmpty(signingCredentials.Key.KeyId) && JsonWebTokenHandler.IncludeDefaultHeaderClaim(JwtHeaderParameterNames.Kid, excludedDefaultHeaderClaims))
                         Kid = signingCredentials.Key.KeyId;
 
-                    if (signingCredentials is X509SigningCredentials x509SigningCredentials)
+                    if (signingCredentials is X509SigningCredentials x509SigningCredentials && JsonWebTokenHandler.IncludeDefaultHeaderClaim(JwtHeaderParameterNames.X5t, excludedDefaultHeaderClaims))
                         this[JwtHeaderParameterNames.X5t] = Base64UrlEncoder.Encode(x509SigningCredentials.Certificate.GetCertHash());
                 }
             }
 
-            if (string.IsNullOrEmpty(tokenType))
-                Typ = JwtConstants.HeaderType;
-            else
-                Typ = tokenType;
+            if (JsonWebTokenHandler.IncludeDefaultHeaderClaim(JwtHeaderParameterNames.Typ, excludedDefaultHeaderClaims))
+            {
+                if (string.IsNullOrEmpty(tokenType))
+                    Typ = JwtConstants.HeaderType;
+                else
+                    Typ = tokenType;
+            }
 
             AddAdditionalClaims(additionalInnerHeaderClaims, false);
             SigningCredentials = signingCredentials;
@@ -183,7 +194,7 @@ namespace System.IdentityModel.Tokens.Jwt
             IDictionary<string, string> outboundAlgorithmMap,
             string tokenType,
             IDictionary<string, object> additionalInnerHeaderClaims)
-            : this(signingCredentials, outboundAlgorithmMap, tokenType, additionalInnerHeaderClaims, true)
+            : this(signingCredentials, outboundAlgorithmMap, tokenType, additionalInnerHeaderClaims, true, null)
         { }
 
         /// <summary>
@@ -223,28 +234,35 @@ namespace System.IdentityModel.Tokens.Jwt
         /// <param name="tokenType"> provides the token type</param>
         /// <param name="additionalHeaderClaims">Defines the dictionary containing any custom header claims that need to be added to the outer JWT token header.</param>
         /// <param name="includeKeyIdInHeader">Controls if key identifying information should be stored in the header</param>
+        /// <param name="excludedDefaultHeaderClaims">Default header claims to exclude</param>
         /// <exception cref="ArgumentNullException">If 'encryptingCredentials' is null.</exception>
         internal JwtHeader(
             EncryptingCredentials encryptingCredentials,
             IDictionary<string, string> outboundAlgorithmMap,
             string tokenType,
             IDictionary<string, object> additionalHeaderClaims,
-            bool includeKeyIdInHeader)
+            bool includeKeyIdInHeader,
+            ISet<string> excludedDefaultHeaderClaims)
             : base(StringComparer.Ordinal)
         {
             if (encryptingCredentials == null)
                 throw LogHelper.LogArgumentNullException(nameof(encryptingCredentials));
 
-            string outboundAlg;
-            if (outboundAlgorithmMap != null && outboundAlgorithmMap.TryGetValue(encryptingCredentials.Alg, out outboundAlg))
-                Alg = outboundAlg;
-            else
-                Alg = encryptingCredentials.Alg;
+            if (JsonWebTokenHandler.IncludeDefaultHeaderClaim(JwtHeaderParameterNames.Alg, excludedDefaultHeaderClaims))
+            {
+                if (outboundAlgorithmMap != null && outboundAlgorithmMap.TryGetValue(encryptingCredentials.Alg, out string outboundAlg))
+                    Alg = outboundAlg;
+                else
+                    Alg = encryptingCredentials.Alg;
+            }
 
-            if (outboundAlgorithmMap != null && outboundAlgorithmMap.TryGetValue(encryptingCredentials.Enc, out outboundAlg))
-                Enc = outboundAlg;
-            else
-                Enc = encryptingCredentials.Enc;
+            if (JsonWebTokenHandler.IncludeDefaultHeaderClaim(JwtHeaderParameterNames.Enc, excludedDefaultHeaderClaims))
+            {
+                if (outboundAlgorithmMap != null && outboundAlgorithmMap.TryGetValue(encryptingCredentials.Enc, out string outboundAlg))
+                    Enc = outboundAlg;
+                else
+                    Enc = encryptingCredentials.Enc;
+            }
 
             // Since developers may have already worked around this issue, implicitly taking a dependency on the
             // old behavior, we guard the new behavior behind an AppContext switch. The new/RFC-conforming behavior
@@ -253,23 +271,26 @@ namespace System.IdentityModel.Tokens.Jwt
             // needs to be maintained.
             if (AppContextSwitches.UseRfcDefinitionOfEpkAndKid)
             {
-                if (includeKeyIdInHeader && !string.IsNullOrEmpty(encryptingCredentials.KeyExchangePublicKey.KeyId))
+                if (includeKeyIdInHeader && !string.IsNullOrEmpty(encryptingCredentials.KeyExchangePublicKey.KeyId) && JsonWebTokenHandler.IncludeDefaultHeaderClaim(JwtHeaderParameterNames.Kid, excludedDefaultHeaderClaims))
                     Kid = encryptingCredentials.KeyExchangePublicKey.KeyId;
 
                 // Parameter MUST be present [...] when [key agreement] algorithms are used: https://www.rfc-editor.org/rfc/rfc7518#section-4.6.1.1
-                if (SupportedAlgorithms.EcdsaWrapAlgorithms.Contains(encryptingCredentials.Alg))
+                if (SupportedAlgorithms.EcdsaWrapAlgorithms.Contains(encryptingCredentials.Alg) && JsonWebTokenHandler.IncludeDefaultHeaderClaim(JwtHeaderParameterNames.Epk, excludedDefaultHeaderClaims))
                     Add(JwtHeaderParameterNames.Epk, JsonWebKeyConverter.ConvertFromSecurityKey(encryptingCredentials.Key).RepresentAsAsymmetricPublicJwk());
             }
             else
             {
-                if (includeKeyIdInHeader && !string.IsNullOrEmpty(encryptingCredentials.Key.KeyId))
+                if (includeKeyIdInHeader && !string.IsNullOrEmpty(encryptingCredentials.Key.KeyId) && JsonWebTokenHandler.IncludeDefaultHeaderClaim(JwtHeaderParameterNames.Kid, excludedDefaultHeaderClaims))
                     Kid = encryptingCredentials.Key.KeyId;
             }
 
-            if (string.IsNullOrEmpty(tokenType))
-                Typ = JwtConstants.HeaderType;
-            else
-                Typ = tokenType;
+            if (JsonWebTokenHandler.IncludeDefaultHeaderClaim(JwtHeaderParameterNames.Typ, excludedDefaultHeaderClaims))
+            {
+                if (string.IsNullOrEmpty(tokenType))
+                    Typ = JwtConstants.HeaderType;
+                else
+                    Typ = tokenType;
+            }
 
             AddAdditionalClaims(additionalHeaderClaims, encryptingCredentials.SetDefaultCtyClaim);
             EncryptingCredentials = encryptingCredentials;
@@ -290,7 +311,7 @@ namespace System.IdentityModel.Tokens.Jwt
             IDictionary<string, string> outboundAlgorithmMap,
             string tokenType,
             IDictionary<string, object> additionalHeaderClaims)
-            : this(encryptingCredentials, outboundAlgorithmMap, tokenType, additionalHeaderClaims, true)
+            : this(encryptingCredentials, outboundAlgorithmMap, tokenType, additionalHeaderClaims, true, null)
         { }
 
         /// <summary>

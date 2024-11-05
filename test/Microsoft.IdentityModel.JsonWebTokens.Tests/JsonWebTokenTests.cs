@@ -1771,6 +1771,34 @@ namespace Microsoft.IdentityModel.JsonWebTokens.Tests
             Assert.False(token.TryGetHeaderValue(JwtHeaderParameterNames.Kid, out string _));
             Assert.False(token.TryGetHeaderValue(JwtHeaderParameterNames.X5t, out string _));
         }
+
+        [Fact]
+        public void CreateTokenWithoutExcludedDefaultHeaderClaims()
+        {
+            for (int i = 0; i < 16; i++)
+            {
+                var excludedDefaultHeaderClaims = new HashSet<string>();
+                if ((i & 8) != 0)
+                    excludedDefaultHeaderClaims.Add(JwtHeaderParameterNames.Alg);
+                if ((i & 4) != 0)
+                    excludedDefaultHeaderClaims.Add(JwtHeaderParameterNames.Kid);
+                if ((i & 2) != 0)
+                    excludedDefaultHeaderClaims.Add(JwtHeaderParameterNames.X5t);
+                if ((i & 1) != 0)
+                    excludedDefaultHeaderClaims.Add(JwtHeaderParameterNames.Typ);
+
+                string rawToken = new JsonWebTokenHandler().CreateToken(new SecurityTokenDescriptor
+                {
+                    SigningCredentials = KeyingMaterial.X509SigningCreds_1024_RsaSha2_Sha2,
+                    ExcludedDefaultHeaderClaims = excludedDefaultHeaderClaims
+                });
+                var token = new JsonWebToken(rawToken);
+                Assert.NotEqual(excludedDefaultHeaderClaims.Contains(JwtHeaderParameterNames.Alg), token.TryGetHeaderValue(JwtHeaderParameterNames.Alg, out string _));
+                Assert.NotEqual(excludedDefaultHeaderClaims.Contains(JwtHeaderParameterNames.Kid), token.TryGetHeaderValue(JwtHeaderParameterNames.Kid, out string _));
+                Assert.NotEqual(excludedDefaultHeaderClaims.Contains(JwtHeaderParameterNames.X5t), token.TryGetHeaderValue(JwtHeaderParameterNames.X5t, out string _));
+                Assert.NotEqual(excludedDefaultHeaderClaims.Contains(JwtHeaderParameterNames.Typ), token.TryGetHeaderValue(JwtHeaderParameterNames.Typ, out string _));
+            }
+        }
     }
 
     public class ParseTimeValuesTheoryData : TheoryDataBase

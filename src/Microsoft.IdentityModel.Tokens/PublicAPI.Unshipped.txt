@@ -1,2 +1,4 @@
+Microsoft.IdentityModel.Tokens.SecurityTokenDescriptor.ExcludedDefaultHeaderClaims.get -> System.Collections.Generic.ISet<string>
+Microsoft.IdentityModel.Tokens.SecurityTokenDescriptor.ExcludedDefaultHeaderClaims.set -> void
 Microsoft.IdentityModel.Tokens.SecurityTokenDescriptor.IncludeKeyIdInHeader.get -> bool
 Microsoft.IdentityModel.Tokens.SecurityTokenDescriptor.IncludeKeyIdInHeader.set -> void

@@ -95,6 +95,16 @@ namespace Microsoft.IdentityModel.Tokens
         public IDictionary<string, object> AdditionalInnerHeaderClaims { get; set; }
 
         /// <summary>
+        /// Gets or sets the <see cref="HashSet{T}"/> which contains the default header claims that should be excluded from the JWT header.
+        /// </summary>
+        /// <remarks>
+        /// The default header claims are 'alg', 'kid', 'x5t', 'enc', and 'zip'.
+        /// </remarks>
+#pragma warning disable CA2227 // Collection properties should be read only
+        public ISet<string> ExcludedDefaultHeaderClaims { get; set; }
+#pragma warning restore CA2227 // Collection properties should be read only
+
+        /// <summary>
         /// Gets or sets the <see cref="SigningCredentials"/> used to create a security token.
         /// </summary>
         public SigningCredentials SigningCredentials { get; set; }
