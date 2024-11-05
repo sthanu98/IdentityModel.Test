@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Microsoft.IdentityModel.Tokens
@@ -206,4 +207,13 @@ namespace Microsoft.IdentityModel.Tokens
     /// <returns>The validated <see cref="SecurityToken"/>.</returns>
     internal delegate ValidationResult<SecurityKey> SignatureValidationDelegate(SecurityToken token, ValidationParameters validationParameters, BaseConfiguration? configuration, CallContext? callContext);
 #nullable restore
+
+    /// <summary>
+    /// Definition for ReadTokenPayloadValueDelegate.
+    /// Called for each claim when token payload is being read.
+    /// </summary>
+    /// <param name="reader">Reader for the underlying token bytes.</param>
+    /// <param name="claimName">The name of the claim being read.</param>
+    /// <returns></returns>
+    internal delegate object ReadTokenPayloadValueDelegate(ref Utf8JsonReader reader, string claimName);
 }

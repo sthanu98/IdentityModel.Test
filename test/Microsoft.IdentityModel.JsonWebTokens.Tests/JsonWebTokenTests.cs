@@ -12,9 +12,11 @@ using System.Linq;
 using System.Reflection;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
 using Microsoft.IdentityModel.TestUtils;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.IdentityModel.Tokens.Json;
 using Microsoft.IdentityModel.Tokens.Json.Tests;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -1741,25 +1743,6 @@ namespace Microsoft.IdentityModel.JsonWebTokens.Tests
         }
 
         [Fact]
-        public void DerivedJsonWebToken_IsCreatedCorrectly()
-        {
-            var expectedCustomClaim = "customclaim";
-            var tokenStr = new JsonWebTokenHandler().CreateToken(new SecurityTokenDescriptor
-            {
-                Issuer = Default.Issuer,
-                Claims = new Dictionary<string, object>
-                {
-                    { "CustomClaim", expectedCustomClaim },
-                }
-            });
-
-            var derivedToken = new CustomJsonWebToken(tokenStr);
-
-            Assert.Equal(expectedCustomClaim, derivedToken.CustomClaim);
-            Assert.Equal(Default.Issuer, derivedToken.Issuer);
-        }
-
-        [Fact]
         public void CreateTokenWithoutKeyIdentifiersInHeader()
         {
             string rawToken = new JsonWebTokenHandler().CreateToken(new SecurityTokenDescriptor
@@ -1770,6 +1753,49 @@ namespace Microsoft.IdentityModel.JsonWebTokens.Tests
             var token = new JsonWebToken(rawToken);
             Assert.False(token.TryGetHeaderValue(JwtHeaderParameterNames.Kid, out string _));
             Assert.False(token.TryGetHeaderValue(JwtHeaderParameterNames.X5t, out string _));
+        }
+
+        [Fact]
+        public void ReadTokenDelegates_CalledCorrectly()
+        {
+            var tokenSpan = new JsonWebTokenHandler().CreateToken(new SecurityTokenDescriptor
+            {
+                Issuer = Default.Issuer,
+                Claims = new Dictionary<string, object>
+                {
+                    { "CustomPayload", "custom_payload" },
+                },
+                AdditionalHeaderClaims = new Dictionary<string, object>
+                {
+                    { "CustomHeader", "custom_header" }
+                }
+            }).AsMemory();
+
+            object ReadPayloadValue(ref Utf8JsonReader reader, string claimName)
+            {
+                if (reader.ValueTextEquals("CustomPayload"u8))
+                {
+                    return new CustomPayloadClaim(JsonSerializerPrimitives.ReadString(ref reader, "CustomPayload", string.Empty, true));
+                }
+                return JsonWebToken.ReadTokenPayloadValue(ref reader, claimName);
+            }
+
+            var jwt = new JsonWebToken(tokenSpan, ReadPayloadValue);
+
+            Assert.True(jwt.TryGetHeaderValue<string>("CustomHeader", out var actualHeaderClaim));
+            Assert.True(jwt.TryGetPayloadValue<CustomPayloadClaim>("CustomPayload", out var actualPayloadClaim));
+
+            Assert.Equal("custom_header", actualHeaderClaim);
+            Assert.Equal("custom_payload", actualPayloadClaim.CustomValue);
+        }
+
+        private class CustomHeaderClaim(string customValue)
+        {
+            public string CustomValue { get; set; } = customValue;
+        }
+        private class CustomPayloadClaim(string customValue)
+        {
+            public string CustomValue { get; set; } = customValue;
         }
     }
 

@@ -10,9 +10,12 @@ Microsoft.IdentityModel.Tokens.IssuerValidationSource.IssuerMatchedConfiguration
 Microsoft.IdentityModel.Tokens.IssuerValidationSource.IssuerMatchedValidationParameters = 2 -> Microsoft.IdentityModel.Tokens.IssuerValidationSource
 Microsoft.IdentityModel.Tokens.LifetimeValidationError._expires -> System.DateTime
 Microsoft.IdentityModel.Tokens.LifetimeValidationError._notBefore -> System.DateTime
+Microsoft.IdentityModel.Tokens.ReadTokenPayloadValueDelegate
 Microsoft.IdentityModel.Tokens.TokenTypeValidationError
 Microsoft.IdentityModel.Tokens.TokenTypeValidationError.TokenTypeValidationError(Microsoft.IdentityModel.Tokens.MessageDetail messageDetail, System.Type exceptionType, System.Diagnostics.StackFrame stackFrame, string invalidTokenType) -> void
 Microsoft.IdentityModel.Tokens.TokenTypeValidationError._invalidTokenType -> string
+Microsoft.IdentityModel.Tokens.TokenValidationParameters.ReadTokenPayloadValue.get -> Microsoft.IdentityModel.Tokens.ReadTokenPayloadValueDelegate
+Microsoft.IdentityModel.Tokens.TokenValidationParameters.ReadTokenPayloadValue.set -> void
 Microsoft.IdentityModel.Tokens.TokenValidationParameters.TimeProvider.get -> System.TimeProvider
 Microsoft.IdentityModel.Tokens.TokenValidationParameters.TimeProvider.set -> void
 Microsoft.IdentityModel.Tokens.ValidationError.GetException(System.Type exceptionType, System.Exception innerException) -> System.Exception

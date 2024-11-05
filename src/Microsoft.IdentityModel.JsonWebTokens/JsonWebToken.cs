@@ -90,6 +90,25 @@ namespace Microsoft.IdentityModel.JsonWebTokens
         /// Initializes a new instance of <see cref="JsonWebToken"/> from a ReadOnlyMemory{char} in JWS or JWE Compact serialized format.
         /// </summary>
         /// <param name="encodedTokenMemory">A ReadOnlyMemory{char} containing the JSON Web Token serialized in JWS or JWE Compact format.</param>
+        /// <param name="readTokenPayloadValueDelegate">A custom delegate to be called when each payload claim is being read. If null, default implementation is called.</param>
+        internal JsonWebToken(
+            ReadOnlyMemory<char> encodedTokenMemory,
+            ReadTokenPayloadValueDelegate readTokenPayloadValueDelegate)
+        {
+            if (encodedTokenMemory.IsEmpty)
+                throw LogHelper.LogExceptionMessage(new ArgumentNullException(nameof(encodedTokenMemory)));
+
+            ReadTokenPayloadValueDelegate = readTokenPayloadValueDelegate ?? ReadTokenPayloadValue;
+
+            ReadToken(encodedTokenMemory);
+
+            _encodedTokenMemory = encodedTokenMemory;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of <see cref="JsonWebToken"/> from a ReadOnlyMemory{char} in JWS or JWE Compact serialized format.
+        /// </summary>
+        /// <param name="encodedTokenMemory">A ReadOnlyMemory{char} containing the JSON Web Token serialized in JWS or JWE Compact format.</param>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="encodedTokenMemory"/> is empty.</exception>
         /// <exception cref="ArgumentException">Thrown if <paramref name="encodedTokenMemory"/> does not represent a valid JWS or JWE Compact Serialization format.</exception>
         /// <remarks>
@@ -140,6 +159,24 @@ namespace Microsoft.IdentityModel.JsonWebTokens
 
             _encodedToken = encodedToken;
         }
+
+        /// <summary>
+        /// Called for each claim when token payload is being read.
+        /// </summary>
+        /// <remarks>
+        /// An example implementation:
+        /// <code>
+        /// object ReadPayloadValueDelegate(ref Utf8JsonReader reader, string claimName) =>
+        /// {
+        ///     if (reader.ValueTextEquals("CustomProp"))
+        ///     {
+        ///         return JsonSerializerPrimitives.ReadString(ref reader, JwtRegisteredClaimNames.CustomProp, ClassName, true);    
+        ///     }
+        ///     return JsonWebToken.ReadTokenPayloadValue(ref reader, claimName);
+        /// }
+        /// </code>
+        /// </remarks>
+        internal ReadTokenPayloadValueDelegate ReadTokenPayloadValueDelegate { get; set; } = ReadTokenPayloadValue;
 
         internal string ActualIssuer { get; set; }
 
