@@ -15,6 +15,7 @@ Microsoft.IdentityModel.Tokens.TokenTypeValidationError.TokenTypeValidationError
 Microsoft.IdentityModel.Tokens.TokenTypeValidationError._invalidTokenType -> string
 Microsoft.IdentityModel.Tokens.TokenValidationParameters.TimeProvider.get -> System.TimeProvider
 Microsoft.IdentityModel.Tokens.TokenValidationParameters.TimeProvider.set -> void
+Microsoft.IdentityModel.Tokens.ValidationError.AddCurrentStackFrame(string filePath = "", int lineNumber = 0, int skipFrames = 1) -> Microsoft.IdentityModel.Tokens.ValidationError
 Microsoft.IdentityModel.Tokens.ValidationError.GetException(System.Type exceptionType, System.Exception innerException) -> System.Exception
 Microsoft.IdentityModel.Tokens.ValidationParameters.TokenTypeValidator.get -> Microsoft.IdentityModel.Tokens.TokenTypeValidationDelegate
 Microsoft.IdentityModel.Tokens.ValidationParameters.TokenTypeValidator.set -> void
@@ -29,6 +30,7 @@ static Microsoft.IdentityModel.Tokens.AudienceValidationError.ValidateAudienceFa
 static Microsoft.IdentityModel.Tokens.AudienceValidationError.ValidationParametersAudiencesCountZero -> System.Diagnostics.StackFrame
 static Microsoft.IdentityModel.Tokens.AudienceValidationError.ValidationParametersNull -> System.Diagnostics.StackFrame
 static Microsoft.IdentityModel.Tokens.Utility.SerializeAsSingleCommaDelimitedString(System.Collections.Generic.IList<string> strings) -> string
+static Microsoft.IdentityModel.Tokens.ValidationError.GetCurrentStackFrame(string filePath = "", int lineNumber = 0, int skipFrames = 1) -> System.Diagnostics.StackFrame
 static readonly Microsoft.IdentityModel.Tokens.ValidationFailureType.NoTokenAudiencesProvided -> Microsoft.IdentityModel.Tokens.ValidationFailureType
 static readonly Microsoft.IdentityModel.Tokens.ValidationFailureType.NoValidationParameterAudiencesProvided -> Microsoft.IdentityModel.Tokens.ValidationFailureType
 static readonly Microsoft.IdentityModel.Tokens.ValidationFailureType.SignatureAlgorithmValidationFailed -> Microsoft.IdentityModel.Tokens.ValidationFailureType
