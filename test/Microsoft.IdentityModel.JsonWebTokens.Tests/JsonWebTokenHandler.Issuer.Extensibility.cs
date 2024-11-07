@@ -61,124 +61,149 @@ namespace Microsoft.IdentityModel.JsonWebTokens.Extensibility.Tests
                 #region return CustomIssuerValidationError
                 // Test cases where delegate is overridden and return an CustomIssuerValidationError
                 // CustomIssuerValidationError : IssuerValidationError, ExceptionType: SecurityTokenInvalidIssuerException
-                IssuerExtensibilityTheoryData testCase = new IssuerExtensibilityTheoryData("CustomIssuerValidatorDelegate", issuerGuid);
-                testCase.ExpectedException = new ExpectedException(
+                theoryData.Add(new IssuerExtensibilityTheoryData(
+                    "CustomIssuerValidatorDelegate",
+                    issuerGuid,
+                    CustomIssuerValidatorDelegates.CustomIssuerValidatorDelegate)
+                {
+                    ExpectedException = new ExpectedException(
                         typeof(SecurityTokenInvalidIssuerException),
-                        nameof(CustomIssuerValidatorDelegates.CustomIssuerValidatorDelegate));
-                testCase.ValidationParameters!.IssuerValidatorAsync = CustomIssuerValidatorDelegates.CustomIssuerValidatorDelegate;
-                testCase.IssuerValidationError = new CustomIssuerValidationError(
-                    new MessageDetail(
-                        nameof(CustomIssuerValidatorDelegates.CustomIssuerValidatorDelegate), null),
-                    typeof(SecurityTokenInvalidIssuerException),
-                    CustomIssuerValidatorDelegates.CustomIssuerValidationStackFrame!,
-                    issuerGuid);
-                theoryData.Add(testCase);
+                        nameof(CustomIssuerValidatorDelegates.CustomIssuerValidatorDelegate)),
+                    IssuerValidationError = new CustomIssuerValidationError(
+                        new MessageDetail(
+                            nameof(CustomIssuerValidatorDelegates.CustomIssuerValidatorDelegate), null),
+                        typeof(SecurityTokenInvalidIssuerException),
+                        CustomIssuerValidatorDelegates.CustomIssuerValidationStackFrame!,
+                        issuerGuid)
+                });
 
                 // CustomIssuerValidationError : IssuerValidationError, ExceptionType: CustomSecurityTokenInvalidIssuerException : SecurityTokenInvalidIssuerException
-                testCase = new IssuerExtensibilityTheoryData("CustomIssuerValidatorCustomExceptionDelegate", issuerGuid);
-                testCase.ExpectedException = new ExpectedException(
+                theoryData.Add(new IssuerExtensibilityTheoryData(
+                    "CustomIssuerValidatorCustomExceptionDelegate",
+                    issuerGuid,
+                    CustomIssuerValidatorDelegates.CustomIssuerValidatorCustomExceptionDelegate)
+                {
+                    ExpectedException = new ExpectedException(
+                        typeof(SecurityTokenException),
+                        nameof(CustomIssuerValidatorDelegates.CustomIssuerValidatorCustomExceptionDelegate)),
+                    IssuerValidationError = new CustomIssuerValidationError(
+                        new MessageDetail(
+                            nameof(CustomIssuerValidatorDelegates.CustomIssuerValidatorCustomExceptionDelegate), null),
                         typeof(CustomSecurityTokenInvalidIssuerException),
-                        nameof(CustomIssuerValidatorDelegates.CustomIssuerValidatorCustomExceptionDelegate));
-                testCase.ValidationParameters!.IssuerValidatorAsync = CustomIssuerValidatorDelegates.CustomIssuerValidatorCustomExceptionDelegate;
-                testCase.IssuerValidationError = new CustomIssuerValidationError(
-                    new MessageDetail(
-                        nameof(CustomIssuerValidatorDelegates.CustomIssuerValidatorCustomExceptionDelegate), null),
-                    typeof(CustomSecurityTokenInvalidIssuerException),
-                    CustomIssuerValidatorDelegates.CustomIssuerValidationStackFrame!,
-                    issuerGuid);
-                theoryData.Add(testCase);
+                        CustomIssuerValidatorDelegates.CustomIssuerValidationStackFrame!,
+                        issuerGuid),
+                });
 
                 // CustomIssuerValidationError : IssuerValidationError, ExceptionType: NotSupportedException : SystemException
-                testCase = new IssuerExtensibilityTheoryData("CustomIssuerValidatorUnknownExceptionDelegate", issuerGuid);
-                testCase.ExpectedException = new ExpectedException(
+                theoryData.Add(new IssuerExtensibilityTheoryData(
+                    "CustomIssuerValidatorUnknownExceptionDelegate",
+                    issuerGuid,
+                    CustomIssuerValidatorDelegates.CustomIssuerValidatorUnknownExceptionDelegate)
+                {
+                    ExpectedException = new ExpectedException(
                         typeof(SecurityTokenException),
-                        nameof(CustomIssuerValidatorDelegates.CustomIssuerValidatorUnknownExceptionDelegate));
-                testCase.ValidationParameters!.IssuerValidatorAsync = CustomIssuerValidatorDelegates.CustomIssuerValidatorUnknownExceptionDelegate;
-                testCase.IssuerValidationError = new CustomIssuerValidationError(
-                    new MessageDetail(
-                        nameof(CustomIssuerValidatorDelegates.CustomIssuerValidatorUnknownExceptionDelegate), null),
-                    typeof(NotSupportedException),
-                    CustomIssuerValidatorDelegates.CustomIssuerValidationStackFrame!,
-                    issuerGuid);
-                theoryData.Add(testCase);
+                        nameof(CustomIssuerValidatorDelegates.CustomIssuerValidatorUnknownExceptionDelegate)),
+                    IssuerValidationError = new CustomIssuerValidationError(
+                        new MessageDetail(
+                            nameof(CustomIssuerValidatorDelegates.CustomIssuerValidatorUnknownExceptionDelegate), null),
+                        typeof(NotSupportedException),
+                        CustomIssuerValidatorDelegates.CustomIssuerValidationStackFrame!,
+                        issuerGuid),
+                });
 
                 // CustomIssuerValidationError : IssuerValidationError, ExceptionType: NotSupportedException : SystemException, ValidationFailureType: CustomIssuerValidationFailureType
-                testCase = new IssuerExtensibilityTheoryData("CustomIssuerValidatorCustomExceptionCustomFailureTypeDelegate", issuerGuid);
-                testCase.ExpectedException = new ExpectedException(
-                        typeof(CustomSecurityTokenInvalidIssuerException),
-                        nameof(CustomIssuerValidatorDelegates.CustomIssuerValidatorCustomExceptionCustomFailureTypeDelegate));
-                testCase.ValidationParameters!.IssuerValidatorAsync = CustomIssuerValidatorDelegates.CustomIssuerValidatorCustomExceptionCustomFailureTypeDelegate;
-                testCase.IssuerValidationError = new CustomIssuerValidationError(
-                    new MessageDetail(
-                        nameof(CustomIssuerValidatorDelegates.CustomIssuerValidatorCustomExceptionCustomFailureTypeDelegate), null),
-                    CustomIssuerValidationError.CustomIssuerValidationFailureType,
-                    typeof(CustomSecurityTokenInvalidIssuerException),
-                    CustomIssuerValidatorDelegates.CustomIssuerValidationCustomExceptionCustomFailureTypeDelegateStackFrame!,
+                theoryData.Add(new IssuerExtensibilityTheoryData(
+                    "CustomIssuerValidatorCustomExceptionCustomFailureTypeDelegate",
                     issuerGuid,
-                    null);
-                theoryData.Add(testCase);
+                    CustomIssuerValidatorDelegates.CustomIssuerValidatorCustomExceptionCustomFailureTypeDelegate)
+                {
+                    ExpectedException = new ExpectedException(
+                        typeof(CustomSecurityTokenInvalidIssuerException),
+                        nameof(CustomIssuerValidatorDelegates.CustomIssuerValidatorCustomExceptionCustomFailureTypeDelegate)),
+                    IssuerValidationError = new CustomIssuerValidationError(
+                        new MessageDetail(
+                            nameof(CustomIssuerValidatorDelegates.CustomIssuerValidatorCustomExceptionCustomFailureTypeDelegate), null),
+                        CustomIssuerValidationError.CustomIssuerValidationFailureType,
+                        typeof(CustomSecurityTokenInvalidIssuerException),
+                        CustomIssuerValidatorDelegates.CustomIssuerValidationCustomExceptionCustomFailureTypeDelegateStackFrame!,
+                        issuerGuid,
+                        null),
+                });
                 #endregion
 
                 #region return IssuerValidationError
                 // Test cases where delegate is overridden and return an IssuerValidationError
                 // IssuerValidationError : ValidationError, ExceptionType:  SecurityTokenInvalidIssuerException
-                testCase = new IssuerExtensibilityTheoryData("IssuerValidatorDelegate", issuerGuid);
-                testCase.ExpectedException = new ExpectedException(
+                theoryData.Add(new IssuerExtensibilityTheoryData(
+                    "IssuerValidatorDelegate",
+                    issuerGuid,
+                    CustomIssuerValidatorDelegates.IssuerValidatorDelegate)
+                {
+                    ExpectedException = new ExpectedException(
                         typeof(SecurityTokenInvalidIssuerException),
-                        nameof(CustomIssuerValidatorDelegates.IssuerValidatorDelegate));
-                testCase.ValidationParameters!.IssuerValidatorAsync = CustomIssuerValidatorDelegates.IssuerValidatorDelegate;
-                testCase.IssuerValidationError = new IssuerValidationError(
-                    new MessageDetail(
-                        nameof(CustomIssuerValidatorDelegates.IssuerValidatorDelegate), null),
-                    typeof(SecurityTokenInvalidIssuerException),
-                    CustomIssuerValidatorDelegates.IssuerValidationStackFrame!,
-                    issuerGuid);
-                theoryData.Add(testCase);
+                        nameof(CustomIssuerValidatorDelegates.IssuerValidatorDelegate)),
+                    IssuerValidationError = new IssuerValidationError(
+                        new MessageDetail(
+                            nameof(CustomIssuerValidatorDelegates.IssuerValidatorDelegate), null),
+                        typeof(SecurityTokenInvalidIssuerException),
+                        CustomIssuerValidatorDelegates.IssuerValidationStackFrame!,
+                        issuerGuid)
+                });
 
                 // IssuerValidationError : ValidationError, ExceptionType:  CustomSecurityTokenInvalidIssuerException : SecurityTokenInvalidIssuerException
-                testCase = new IssuerExtensibilityTheoryData("IssuerValidatorCustomIssuerExceptionTypeDelegate", issuerGuid);
-                testCase.ExpectedException = new ExpectedException(
+                theoryData.Add(new IssuerExtensibilityTheoryData(
+                    "IssuerValidatorCustomExceptionTypeDelegate",
+                    issuerGuid,
+                    CustomIssuerValidatorDelegates.IssuerValidatorCustomExceptionTypeDelegate)
+                {
+                    ExpectedException = new ExpectedException(
                         typeof(SecurityTokenException),
-                        nameof(CustomIssuerValidatorDelegates.IssuerValidatorCustomIssuerExceptionTypeDelegate));
-                testCase.ValidationParameters!.IssuerValidatorAsync = CustomIssuerValidatorDelegates.IssuerValidatorCustomIssuerExceptionTypeDelegate;
-                testCase.IssuerValidationError = new IssuerValidationError(
-                    new MessageDetail(
-                        nameof(CustomIssuerValidatorDelegates.IssuerValidatorCustomIssuerExceptionTypeDelegate), null),
-                    typeof(CustomSecurityTokenInvalidIssuerException),
-                    CustomIssuerValidatorDelegates.IssuerValidationCustomIssuerExceptionTypeStackFrame!,
-                    issuerGuid);
-                theoryData.Add(testCase);
+                        nameof(CustomIssuerValidatorDelegates.IssuerValidatorCustomExceptionTypeDelegate)),
+                    IssuerValidationError = new IssuerValidationError(
+                        new MessageDetail(
+                            nameof(CustomIssuerValidatorDelegates.IssuerValidatorCustomExceptionTypeDelegate), null),
+                        typeof(CustomSecurityTokenInvalidIssuerException),
+                        CustomIssuerValidatorDelegates.IssuerValidationCustomExceptionTypeStackFrame!,
+                        issuerGuid)
+                });
 
                 // IssuerValidationError : ValidationError, ExceptionType:  CustomSecurityTokenException : SystemException
-                testCase = new IssuerExtensibilityTheoryData("IssuerValidatorCustomExceptionTypeDelegate", issuerGuid);
-                testCase.ExpectedException = new ExpectedException(
+                theoryData.Add(new IssuerExtensibilityTheoryData(
+                    "IssuerValidatorCustomExceptionTypeDelegate",
+                    issuerGuid,
+                    CustomIssuerValidatorDelegates.IssuerValidatorCustomExceptionTypeDelegate)
+                {
+                    ExpectedException = new ExpectedException(
                         typeof(SecurityTokenException),
-                        nameof(CustomIssuerValidatorDelegates.IssuerValidatorCustomExceptionTypeDelegate));
-                testCase.ValidationParameters!.IssuerValidatorAsync = CustomIssuerValidatorDelegates.IssuerValidatorCustomExceptionTypeDelegate;
-                testCase.IssuerValidationError = new IssuerValidationError(
-                    new MessageDetail(
-                        nameof(CustomIssuerValidatorDelegates.IssuerValidatorCustomExceptionTypeDelegate), null),
-                    typeof(CustomSecurityTokenException),
-                    CustomIssuerValidatorDelegates.IssuerValidationCustomExceptionTypeStackFrame!,
-                    issuerGuid);
-                theoryData.Add(testCase);
+                        nameof(CustomIssuerValidatorDelegates.IssuerValidatorCustomExceptionTypeDelegate)),
+                    IssuerValidationError = new IssuerValidationError(
+                        new MessageDetail(
+                            nameof(CustomIssuerValidatorDelegates.IssuerValidatorCustomExceptionTypeDelegate), null),
+                        typeof(CustomSecurityTokenException),
+                        CustomIssuerValidatorDelegates.IssuerValidationCustomExceptionTypeStackFrame!,
+                        issuerGuid)
+                });
 
                 // IssuerValidationError : ValidationError, ExceptionType: SecurityTokenInvalidIssuerException, inner: CustomSecurityTokenInvalidIssuerException
-                testCase = new IssuerExtensibilityTheoryData("IssuerValidatorThrows", issuerGuid);
-                testCase.ExpectedException = new ExpectedException(
+                theoryData.Add(new IssuerExtensibilityTheoryData(
+                    "IssuerValidatorThrows",
+                    issuerGuid,
+                    CustomIssuerValidatorDelegates.IssuerValidatorThrows)
+                {
+                    ExpectedException = new ExpectedException(
                         typeof(SecurityTokenInvalidIssuerException),
                         string.Format(Tokens.LogMessages.IDX10269),
-                        typeof(CustomSecurityTokenInvalidIssuerException));
-                testCase.ValidationParameters!.IssuerValidatorAsync = CustomIssuerValidatorDelegates.IssuerValidatorThrows;
-                testCase.IssuerValidationError = new IssuerValidationError(
-                    new MessageDetail(
-                        string.Format(Tokens.LogMessages.IDX10269), null),
-                    ValidationFailureType.IssuerValidatorThrew,
-                    typeof(SecurityTokenInvalidIssuerException),
-                    CustomIssuerValidatorDelegates.IssuerValidationStackFrame!,
-                    issuerGuid,
-                    new SecurityTokenInvalidIssuerException(nameof(CustomIssuerValidatorDelegates.IssuerValidatorThrows)));
-                theoryData.Add(testCase);
+                        typeof(CustomSecurityTokenInvalidIssuerException)),
+                    IssuerValidationError = new IssuerValidationError(
+                        new MessageDetail(
+                            string.Format(Tokens.LogMessages.IDX10269), null),
+                        ValidationFailureType.IssuerValidatorThrew,
+                        typeof(SecurityTokenInvalidIssuerException),
+                        CustomIssuerValidatorDelegates.IssuerValidationStackFrame!,
+                        issuerGuid,
+                        new SecurityTokenInvalidIssuerException(nameof(CustomIssuerValidatorDelegates.IssuerValidatorThrows))
+                    )
+                });
                 #endregion
 
                 return theoryData;
@@ -187,9 +212,20 @@ namespace Microsoft.IdentityModel.JsonWebTokens.Extensibility.Tests
 
         public class IssuerExtensibilityTheoryData : ValidateTokenAsyncBaseTheoryData
         {
-            public IssuerExtensibilityTheoryData(string testId, string issuer) : base(testId)
+            internal IssuerExtensibilityTheoryData(string testId, string issuer, IssuerValidationDelegateAsync issuerValidator) : base(testId)
             {
                 JsonWebToken = JsonUtilities.CreateUnsignedJsonWebToken("iss", issuer);
+                ValidationParameters = new ValidationParameters
+                {
+                    AlgorithmValidator = SkipValidationDelegates.SkipAlgorithmValidation,
+                    AudienceValidator = SkipValidationDelegates.SkipAudienceValidation,
+                    IssuerValidatorAsync = issuerValidator,
+                    IssuerSigningKeyValidator = SkipValidationDelegates.SkipIssuerSigningKeyValidation,
+                    LifetimeValidator = SkipValidationDelegates.SkipLifetimeValidation,
+                    SignatureValidator = SkipValidationDelegates.SkipSignatureValidation,
+                    TokenReplayValidator = SkipValidationDelegates.SkipTokenReplayValidation,
+                    TokenTypeValidator = SkipValidationDelegates.SkipTokenTypeValidation
+                };
             }
 
             public JsonWebToken JsonWebToken { get; }
@@ -197,18 +233,6 @@ namespace Microsoft.IdentityModel.JsonWebTokens.Extensibility.Tests
             public JsonWebTokenHandler JsonWebTokenHandler { get; } = new JsonWebTokenHandler();
 
             public bool IsValid { get; set; }
-
-            internal override ValidationParameters? ValidationParameters { get; set; } = new ValidationParameters
-            {
-                AlgorithmValidator = SkipValidationDelegates.SkipAlgorithmValidation,
-                AudienceValidator = SkipValidationDelegates.SkipAudienceValidation,
-                IssuerValidatorAsync = SkipValidationDelegates.SkipIssuerValidation,
-                IssuerSigningKeyValidator = SkipValidationDelegates.SkipIssuerSigningKeyValidation,
-                LifetimeValidator = SkipValidationDelegates.SkipLifetimeValidation,
-                SignatureValidator = SkipValidationDelegates.SkipSignatureValidation,
-                TokenReplayValidator = SkipValidationDelegates.SkipTokenReplayValidation,
-                TokenTypeValidator = SkipValidationDelegates.SkipTokenTypeValidation
-            };
 
             internal ValidatedIssuer ValidatedIssuer { get; set; }
 
