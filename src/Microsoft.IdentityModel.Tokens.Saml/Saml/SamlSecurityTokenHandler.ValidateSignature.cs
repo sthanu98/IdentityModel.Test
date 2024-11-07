@@ -65,10 +65,7 @@ namespace Microsoft.IdentityModel.Tokens.Saml
                 resolvedKey = SamlTokenUtilities.ResolveTokenSigningKey(samlToken.Assertion.Signature.KeyInfo, validationParameters);
             }
 
-            bool canMatchKey = samlToken.Assertion.Signature.KeyInfo != null;
-            List<ValidationError>? errors = null;
             ValidationError? error = null;
-            StringBuilder? keysAttempted = null;
 
             if (resolvedKey is not null)
             {
@@ -84,6 +81,10 @@ namespace Microsoft.IdentityModel.Tokens.Saml
                 if (validationParameters.TryAllIssuerSigningKeys)
                     keys = validationParameters.IssuerSigningKeys;
             }
+
+            bool canMatchKey = samlToken.Assertion.Signature.KeyInfo != null;
+            List<ValidationError>? errors = null;
+            StringBuilder? keysAttempted = null;
 
             if (keys is not null)
             {
@@ -110,7 +111,7 @@ namespace Microsoft.IdentityModel.Tokens.Saml
                         TokenLogMessages.IDX10514,
                         keysAttempted?.ToString(),
                         samlToken.Assertion.Signature.KeyInfo,
-                        GetErrorStrings(error, errors),
+                        GetErrorString(error, errors),
                         samlToken),
                     ValidationFailureType.SignatureValidationFailed,
                     typeof(SecurityTokenInvalidSignatureException),
@@ -127,7 +128,7 @@ namespace Microsoft.IdentityModel.Tokens.Saml
                     new MessageDetail(
                         TokenLogMessages.IDX10512,
                         keysAttemptedString,
-                        GetErrorStrings(error, errors),
+                        GetErrorString(error, errors),
                         samlToken),
                     ValidationFailureType.SignatureValidationFailed,
                     typeof(SecurityTokenSignatureKeyNotFoundException),
@@ -156,9 +157,9 @@ namespace Microsoft.IdentityModel.Tokens.Saml
             else
             {
                 var validationError = samlToken.Assertion.Signature.Verify(
-                key,
-                validationParameters.CryptoProviderFactory ?? key.CryptoProviderFactory,
-                callContext);
+                    key,
+                    validationParameters.CryptoProviderFactory ?? key.CryptoProviderFactory,
+                    callContext);
 
                 if (validationError is null)
                 {
@@ -173,23 +174,23 @@ namespace Microsoft.IdentityModel.Tokens.Saml
             }
         }
 
-        private static string GetErrorStrings(ValidationError? error, List<ValidationError>? errors)
+        private static string GetErrorString(ValidationError? error, List<ValidationError>? errorList)
         {
             // This method is called if there are errors in the signature validation process.
             // This check is there to account for the optional parameter.
             if (error is not null)
                 return error.MessageDetail.Message;
 
-            if (errors is null)
+            if (errorList is null)
                 return string.Empty;
 
-            if (errors.Count == 1)
-                return errors[0].MessageDetail.Message;
+            if (errorList.Count == 1)
+                return errorList[0].MessageDetail.Message;
 
             StringBuilder sb = new();
-            for (int i = 0; i < errors.Count; i++)
+            for (int i = 0; i < errorList.Count; i++)
             {
-                sb.AppendLine(errors[i].MessageDetail.Message);
+                sb.AppendLine(errorList[i].MessageDetail.Message);
             }
 
             return sb.ToString();
