@@ -73,7 +73,7 @@ namespace Microsoft.IdentityModel.JsonWebTokens.Extensibility.Tests
                         new MessageDetail(
                             nameof(CustomIssuerValidatorDelegates.CustomIssuerValidatorDelegate), null),
                         typeof(SecurityTokenInvalidIssuerException),
-                        CustomIssuerValidatorDelegates.CustomIssuerValidationStackFrame!,
+                        ValidationError.GetCurrentStackFrame(),
                         issuerGuid)
                 });
 
@@ -84,13 +84,13 @@ namespace Microsoft.IdentityModel.JsonWebTokens.Extensibility.Tests
                     CustomIssuerValidatorDelegates.CustomIssuerValidatorCustomExceptionDelegate)
                 {
                     ExpectedException = new ExpectedException(
-                        typeof(SecurityTokenException),
+                        typeof(CustomSecurityTokenInvalidIssuerException),
                         nameof(CustomIssuerValidatorDelegates.CustomIssuerValidatorCustomExceptionDelegate)),
                     IssuerValidationError = new CustomIssuerValidationError(
                         new MessageDetail(
                             nameof(CustomIssuerValidatorDelegates.CustomIssuerValidatorCustomExceptionDelegate), null),
                         typeof(CustomSecurityTokenInvalidIssuerException),
-                        CustomIssuerValidatorDelegates.CustomIssuerValidationStackFrame!,
+                        ValidationError.GetCurrentStackFrame(),
                         issuerGuid),
                 });
 
@@ -107,7 +107,7 @@ namespace Microsoft.IdentityModel.JsonWebTokens.Extensibility.Tests
                         new MessageDetail(
                             nameof(CustomIssuerValidatorDelegates.CustomIssuerValidatorUnknownExceptionDelegate), null),
                         typeof(NotSupportedException),
-                        CustomIssuerValidatorDelegates.CustomIssuerValidationStackFrame!,
+                        ValidationError.GetCurrentStackFrame(),
                         issuerGuid),
                 });
 
@@ -125,7 +125,7 @@ namespace Microsoft.IdentityModel.JsonWebTokens.Extensibility.Tests
                             nameof(CustomIssuerValidatorDelegates.CustomIssuerValidatorCustomExceptionCustomFailureTypeDelegate), null),
                         CustomIssuerValidationError.CustomIssuerValidationFailureType,
                         typeof(CustomSecurityTokenInvalidIssuerException),
-                        CustomIssuerValidatorDelegates.CustomIssuerValidationCustomExceptionCustomFailureTypeDelegateStackFrame!,
+                        ValidationError.GetCurrentStackFrame(),
                         issuerGuid,
                         null),
                 });
@@ -146,24 +146,24 @@ namespace Microsoft.IdentityModel.JsonWebTokens.Extensibility.Tests
                         new MessageDetail(
                             nameof(CustomIssuerValidatorDelegates.IssuerValidatorDelegate), null),
                         typeof(SecurityTokenInvalidIssuerException),
-                        CustomIssuerValidatorDelegates.IssuerValidationStackFrame!,
+                        ValidationError.GetCurrentStackFrame(),
                         issuerGuid)
                 });
 
                 // IssuerValidationError : ValidationError, ExceptionType:  CustomSecurityTokenInvalidIssuerException : SecurityTokenInvalidIssuerException
                 theoryData.Add(new IssuerExtensibilityTheoryData(
-                    "IssuerValidatorCustomExceptionTypeDelegate",
+                    "IssuerValidatorCustomIssuerExceptionTypeDelegate",
                     issuerGuid,
-                    CustomIssuerValidatorDelegates.IssuerValidatorCustomExceptionTypeDelegate)
+                    CustomIssuerValidatorDelegates.IssuerValidatorCustomIssuerExceptionTypeDelegate)
                 {
                     ExpectedException = new ExpectedException(
                         typeof(SecurityTokenException),
-                        nameof(CustomIssuerValidatorDelegates.IssuerValidatorCustomExceptionTypeDelegate)),
+                        nameof(CustomIssuerValidatorDelegates.IssuerValidatorCustomIssuerExceptionTypeDelegate)),
                     IssuerValidationError = new IssuerValidationError(
                         new MessageDetail(
-                            nameof(CustomIssuerValidatorDelegates.IssuerValidatorCustomExceptionTypeDelegate), null),
+                            nameof(CustomIssuerValidatorDelegates.IssuerValidatorCustomIssuerExceptionTypeDelegate), null),
                         typeof(CustomSecurityTokenInvalidIssuerException),
-                        CustomIssuerValidatorDelegates.IssuerValidationCustomExceptionTypeStackFrame!,
+                        ValidationError.GetCurrentStackFrame(),
                         issuerGuid)
                 });
 
@@ -180,7 +180,7 @@ namespace Microsoft.IdentityModel.JsonWebTokens.Extensibility.Tests
                         new MessageDetail(
                             nameof(CustomIssuerValidatorDelegates.IssuerValidatorCustomExceptionTypeDelegate), null),
                         typeof(CustomSecurityTokenException),
-                        CustomIssuerValidatorDelegates.IssuerValidationCustomExceptionTypeStackFrame!,
+                        ValidationError.GetCurrentStackFrame(),
                         issuerGuid)
                 });
 
@@ -199,7 +199,7 @@ namespace Microsoft.IdentityModel.JsonWebTokens.Extensibility.Tests
                             string.Format(Tokens.LogMessages.IDX10269), null),
                         ValidationFailureType.IssuerValidatorThrew,
                         typeof(SecurityTokenInvalidIssuerException),
-                        CustomIssuerValidatorDelegates.IssuerValidationStackFrame!,
+                        ValidationError.GetCurrentStackFrame(),
                         issuerGuid,
                         new SecurityTokenInvalidIssuerException(nameof(CustomIssuerValidatorDelegates.IssuerValidatorThrows))
                     )

@@ -277,7 +277,6 @@ namespace Microsoft.IdentityModel.JsonWebTokens
                 return audienceValidationResult.UnwrapError().AddStackFrame(audienceValidationFailureStackFrame);
             }
 
-#pragma warning disable CA1031 // Do not catch general exception types
             ValidationResult<ValidatedIssuer> issuerValidationResult;
             try
             {
@@ -286,23 +285,21 @@ namespace Microsoft.IdentityModel.JsonWebTokens
                     .ConfigureAwait(false);
 
                 if (!issuerValidationResult.IsValid)
-                {
-                    StackFrame issuerValidationFailureStackFrame = StackFrames.IssuerValidationFailed ??= new StackFrame(true);
-                    return issuerValidationResult.UnwrapError().AddStackFrame(issuerValidationFailureStackFrame);
-                }
+                    return issuerValidationResult.UnwrapError().AddCurrentStackFrame();
             }
+#pragma warning disable CA1031 // Do not catch general exception types
             catch (Exception ex)
+#pragma warning restore CA1031 // Do not catch general exception types
             {
-                StackFrames.IssuerValidatorThrew ??= new StackFrame(true);
                 return new IssuerValidationError(
                     new MessageDetail(TokenLogMessages.IDX10269),
                     ValidationFailureType.IssuerValidatorThrew,
                     typeof(SecurityTokenInvalidIssuerException),
-                    StackFrames.IssuerValidatorThrew,
+                    ValidationError.GetCurrentStackFrame(),
                     jsonWebToken.Issuer,
                     ex);
             }
-#pragma warning restore CA1031 // Do not catch general exception types
+
 
             ValidationResult<DateTime?> replayValidationResult = validationParameters.TokenReplayValidator(
                 expires, jsonWebToken.EncodedToken, validationParameters, callContext);
