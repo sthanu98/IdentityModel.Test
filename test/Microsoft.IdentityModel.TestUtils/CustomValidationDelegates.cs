@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.IdentityModel.Tokens;
@@ -10,74 +9,9 @@ using Microsoft.IdentityModel.Tokens;
 #nullable enable
 namespace Microsoft.IdentityModel.TestUtils
 {
-    internal class CustomSecurityTokenInvalidIssuerException : SecurityTokenInvalidIssuerException
-    {
-        public CustomSecurityTokenInvalidIssuerException(string message)
-            : base(message)
-        {
-        }
-    }
-
-    internal class CustomSecurityTokenException : SystemException
-    {
-        public CustomSecurityTokenException(string message)
-            : base(message)
-        {
-        }
-    }
-
-
-    internal class CustomIssuerValidationError : IssuerValidationError
-    {
-        /// <summary>
-        /// A custom validation failure type.
-        /// </summary>
-        public static readonly ValidationFailureType CustomIssuerValidationFailureType = new IssuerValidatorFailure("CustomIssuerValidationFailureType");
-        private class IssuerValidatorFailure : ValidationFailureType { internal IssuerValidatorFailure(string name) : base(name) { } }
-
-        public CustomIssuerValidationError(
-            MessageDetail messageDetail,
-            Type exceptionType,
-            StackFrame stackFrame,
-            string? invalidIssuer)
-            : base(messageDetail, exceptionType, stackFrame, invalidIssuer)
-        {
-        }
-
-        public CustomIssuerValidationError(
-            MessageDetail messageDetail,
-            ValidationFailureType validationFailureType,
-            Type exceptionType,
-            StackFrame stackFrame,
-            string? invalidIssuer,
-            Exception? innerException)
-            : base(messageDetail, validationFailureType, exceptionType, stackFrame, invalidIssuer, innerException)
-        {
-        }
-
-        internal override Exception GetException()
-        {
-            if (ExceptionType == typeof(CustomSecurityTokenInvalidIssuerException))
-                return new CustomSecurityTokenInvalidIssuerException(MessageDetail.Message) { InvalidIssuer = InvalidIssuer };
-
-            return base.GetException();
-        }
-    }
-
-    internal class CustomIssuerWithoutGetExceptionValidationOverrideError : IssuerValidationError
-    {
-        public CustomIssuerWithoutGetExceptionValidationOverrideError(MessageDetail messageDetail,
-            Type exceptionType,
-            StackFrame stackFrame,
-            string? invalidIssuer) :
-            base(messageDetail, exceptionType, stackFrame, invalidIssuer)
-        {
-        }
-    }
-
     internal class CustomIssuerValidatorDelegates
     {
-        internal async static Task<ValidationResult<ValidatedIssuer>> CustomIssuerValidatorDelegate(
+        internal async static Task<ValidationResult<ValidatedIssuer>> CustomIssuerValidatorDelegateAsync(
             string issuer,
             SecurityToken securityToken,
             ValidationParameters validationParameters,
@@ -87,13 +21,13 @@ namespace Microsoft.IdentityModel.TestUtils
             // Returns a CustomIssuerValidationError : IssuerValidationError
             return await Task.FromResult(new ValidationResult<ValidatedIssuer>(
                 new CustomIssuerValidationError(
-                    new MessageDetail(nameof(CustomIssuerValidatorDelegate), null),
+                    new MessageDetail(nameof(CustomIssuerValidatorDelegateAsync), null),
                     typeof(SecurityTokenInvalidIssuerException),
                     ValidationError.GetCurrentStackFrame(),
                     issuer)));
         }
 
-        internal async static Task<ValidationResult<ValidatedIssuer>> CustomIssuerValidatorCustomExceptionDelegate(
+        internal async static Task<ValidationResult<ValidatedIssuer>> CustomIssuerValidatorCustomExceptionDelegateAsync(
             string issuer,
             SecurityToken securityToken,
             ValidationParameters validationParameters,
@@ -102,13 +36,13 @@ namespace Microsoft.IdentityModel.TestUtils
         {
             return await Task.FromResult(new ValidationResult<ValidatedIssuer>(
                 new CustomIssuerValidationError(
-                    new MessageDetail(nameof(CustomIssuerValidatorCustomExceptionDelegate), null),
+                    new MessageDetail(nameof(CustomIssuerValidatorCustomExceptionDelegateAsync), null),
                     typeof(CustomSecurityTokenInvalidIssuerException),
                     ValidationError.GetCurrentStackFrame(),
                     issuer)));
         }
 
-        internal async static Task<ValidationResult<ValidatedIssuer>> CustomIssuerValidatorCustomExceptionCustomFailureTypeDelegate(
+        internal async static Task<ValidationResult<ValidatedIssuer>> CustomIssuerValidatorCustomExceptionCustomFailureTypeDelegateAsync(
             string issuer,
             SecurityToken securityToken,
             ValidationParameters validationParameters,
@@ -117,7 +51,7 @@ namespace Microsoft.IdentityModel.TestUtils
         {
             return await Task.FromResult(new ValidationResult<ValidatedIssuer>(
                 new CustomIssuerValidationError(
-                    new MessageDetail(nameof(CustomIssuerValidatorCustomExceptionCustomFailureTypeDelegate), null),
+                    new MessageDetail(nameof(CustomIssuerValidatorCustomExceptionCustomFailureTypeDelegateAsync), null),
                     CustomIssuerValidationError.CustomIssuerValidationFailureType,
                     typeof(CustomSecurityTokenInvalidIssuerException),
                     ValidationError.GetCurrentStackFrame(),
@@ -125,7 +59,7 @@ namespace Microsoft.IdentityModel.TestUtils
                     null)));
         }
 
-        internal async static Task<ValidationResult<ValidatedIssuer>> CustomIssuerValidatorUnknownExceptionDelegate(
+        internal async static Task<ValidationResult<ValidatedIssuer>> CustomIssuerValidatorUnknownExceptionDelegateAsync(
             string issuer,
             SecurityToken securityToken,
             ValidationParameters validationParameters,
@@ -134,13 +68,13 @@ namespace Microsoft.IdentityModel.TestUtils
         {
             return await Task.FromResult(new ValidationResult<ValidatedIssuer>(
                 new CustomIssuerValidationError(
-                    new MessageDetail(nameof(CustomIssuerValidatorUnknownExceptionDelegate), null),
+                    new MessageDetail(nameof(CustomIssuerValidatorUnknownExceptionDelegateAsync), null),
                     typeof(NotSupportedException),
                     ValidationError.GetCurrentStackFrame(),
                     issuer)));
         }
 
-        internal async static Task<ValidationResult<ValidatedIssuer>> CustomIssuerValidatorWithoutGetExceptionOverrideDelegate(
+        internal async static Task<ValidationResult<ValidatedIssuer>> CustomIssuerValidatorWithoutGetExceptionOverrideDelegateAsync(
             string issuer,
             SecurityToken securityToken,
             ValidationParameters validationParameters,
@@ -149,13 +83,13 @@ namespace Microsoft.IdentityModel.TestUtils
         {
             return await Task.FromResult(new ValidationResult<ValidatedIssuer>(
                 new CustomIssuerWithoutGetExceptionValidationOverrideError(
-                    new MessageDetail(nameof(CustomIssuerValidatorWithoutGetExceptionOverrideDelegate), null),
+                    new MessageDetail(nameof(CustomIssuerValidatorWithoutGetExceptionOverrideDelegateAsync), null),
                     typeof(CustomSecurityTokenInvalidIssuerException),
                     ValidationError.GetCurrentStackFrame(),
                     issuer)));
         }
 
-        internal async static Task<ValidationResult<ValidatedIssuer>> IssuerValidatorDelegate(
+        internal async static Task<ValidationResult<ValidatedIssuer>> IssuerValidatorDelegateAsync(
             string issuer,
             SecurityToken securityToken,
             ValidationParameters validationParameters,
@@ -164,15 +98,13 @@ namespace Microsoft.IdentityModel.TestUtils
         {
             return await Task.FromResult(new ValidationResult<ValidatedIssuer>(
                 new IssuerValidationError(
-                    new MessageDetail(nameof(IssuerValidatorDelegate), null),
+                    new MessageDetail(nameof(IssuerValidatorDelegateAsync), null),
                     typeof(SecurityTokenInvalidIssuerException),
                     ValidationError.GetCurrentStackFrame(),
                     issuer)));
         }
 
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-        internal async static Task<ValidationResult<ValidatedIssuer>> IssuerValidatorThrows(
-#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
+        internal static Task<ValidationResult<ValidatedIssuer>> IssuerValidatorThrows(
             string issuer,
             SecurityToken securityToken,
             ValidationParameters validationParameters,
@@ -182,7 +114,7 @@ namespace Microsoft.IdentityModel.TestUtils
             throw new CustomSecurityTokenInvalidIssuerException(nameof(IssuerValidatorThrows));
         }
 
-        internal async static Task<ValidationResult<ValidatedIssuer>> IssuerValidatorCustomIssuerExceptionTypeDelegate(
+        internal async static Task<ValidationResult<ValidatedIssuer>> IssuerValidatorCustomIssuerExceptionTypeDelegateAsync(
             string issuer,
             SecurityToken securityToken,
             ValidationParameters validationParameters,
@@ -191,12 +123,12 @@ namespace Microsoft.IdentityModel.TestUtils
         {
             return await Task.FromResult(new ValidationResult<ValidatedIssuer>(
                 new IssuerValidationError(
-                    new MessageDetail(nameof(IssuerValidatorCustomIssuerExceptionTypeDelegate), null),
+                    new MessageDetail(nameof(IssuerValidatorCustomIssuerExceptionTypeDelegateAsync), null),
                     typeof(CustomSecurityTokenInvalidIssuerException),
                     ValidationError.GetCurrentStackFrame(),
                     issuer)));
         }
-        internal async static Task<ValidationResult<ValidatedIssuer>> IssuerValidatorCustomExceptionTypeDelegate(
+        internal async static Task<ValidationResult<ValidatedIssuer>> IssuerValidatorCustomExceptionTypeDelegateAsync(
             string issuer,
             SecurityToken securityToken,
             ValidationParameters validationParameters,
@@ -205,7 +137,7 @@ namespace Microsoft.IdentityModel.TestUtils
         {
             return await Task.FromResult(new ValidationResult<ValidatedIssuer>(
                 new IssuerValidationError(
-                    new MessageDetail(nameof(IssuerValidatorCustomExceptionTypeDelegate), null),
+                    new MessageDetail(nameof(IssuerValidatorCustomExceptionTypeDelegateAsync), null),
                     typeof(CustomSecurityTokenException),
                     ValidationError.GetCurrentStackFrame(),
                     issuer)));

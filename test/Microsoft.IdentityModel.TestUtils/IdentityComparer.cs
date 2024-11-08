@@ -1434,10 +1434,10 @@ namespace Microsoft.IdentityModel.TestUtils
             }
 
             AreStringsEqual(
-                validationError1.GetType().ToString(),
-                validationError2.GetType().ToString(),
-                "validationError1.GetType().ToString()",
-                "validationError2.GetType().ToString()",
+                validationError1.GetType().FullName,
+                validationError2.GetType().FullName,
+                "validationError1.GetType().FullName",
+                "validationError2.GetType().FullName",
                 localContext);
 
             AreStringsEqual(

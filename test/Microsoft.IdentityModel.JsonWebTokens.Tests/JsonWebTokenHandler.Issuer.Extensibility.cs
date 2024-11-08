@@ -68,18 +68,19 @@ namespace Microsoft.IdentityModel.JsonWebTokens.Extensibility.Tests
                 theoryData.Add(new IssuerExtensibilityTheoryData(
                     "CustomIssuerValidatorDelegate",
                     issuerGuid,
-                    CustomIssuerValidatorDelegates.CustomIssuerValidatorDelegate,
-                    new List<StackFrame> {
+                    CustomIssuerValidatorDelegates.CustomIssuerValidatorDelegateAsync,
+                    [
                         new StackFrame("CustomValidationDelegates.cs", 88),
                         new StackFrame(false),
-                        new StackFrame(false)})
+                        new StackFrame(false)
+                    ])
                 {
                     ExpectedException = new ExpectedException(
                         typeof(SecurityTokenInvalidIssuerException),
-                        nameof(CustomIssuerValidatorDelegates.CustomIssuerValidatorDelegate)),
+                        nameof(CustomIssuerValidatorDelegates.CustomIssuerValidatorDelegateAsync)),
                     IssuerValidationError = new CustomIssuerValidationError(
                         new MessageDetail(
-                            nameof(CustomIssuerValidatorDelegates.CustomIssuerValidatorDelegate), null),
+                            nameof(CustomIssuerValidatorDelegates.CustomIssuerValidatorDelegateAsync), null),
                         typeof(SecurityTokenInvalidIssuerException),
                         new StackFrame("CustomValidationDelegates.cs", 88),
                         issuerGuid)
@@ -89,18 +90,19 @@ namespace Microsoft.IdentityModel.JsonWebTokens.Extensibility.Tests
                 theoryData.Add(new IssuerExtensibilityTheoryData(
                     "CustomIssuerValidatorCustomExceptionDelegate",
                     issuerGuid,
-                    CustomIssuerValidatorDelegates.CustomIssuerValidatorCustomExceptionDelegate,
-                    new List<StackFrame> {
+                    CustomIssuerValidatorDelegates.CustomIssuerValidatorCustomExceptionDelegateAsync,
+                    [
                         new StackFrame("CustomValidationDelegates.cs", 107),
                         new StackFrame(false),
-                        new StackFrame(false)})
+                        new StackFrame(false)
+                    ])
                 {
                     ExpectedException = new ExpectedException(
                         typeof(CustomSecurityTokenInvalidIssuerException),
-                        nameof(CustomIssuerValidatorDelegates.CustomIssuerValidatorCustomExceptionDelegate)),
+                        nameof(CustomIssuerValidatorDelegates.CustomIssuerValidatorCustomExceptionDelegateAsync)),
                     IssuerValidationError = new CustomIssuerValidationError(
                         new MessageDetail(
-                            nameof(CustomIssuerValidatorDelegates.CustomIssuerValidatorCustomExceptionDelegate), null),
+                            nameof(CustomIssuerValidatorDelegates.CustomIssuerValidatorCustomExceptionDelegateAsync), null),
                         typeof(CustomSecurityTokenInvalidIssuerException),
                         new StackFrame("CustomValidationDelegates.cs", 107),
                         issuerGuid),
@@ -110,18 +112,19 @@ namespace Microsoft.IdentityModel.JsonWebTokens.Extensibility.Tests
                 theoryData.Add(new IssuerExtensibilityTheoryData(
                     "CustomIssuerValidatorUnknownExceptionDelegate",
                     issuerGuid,
-                    CustomIssuerValidatorDelegates.CustomIssuerValidatorUnknownExceptionDelegate,
-                    new List<StackFrame> {
+                    CustomIssuerValidatorDelegates.CustomIssuerValidatorUnknownExceptionDelegateAsync,
+                    [
                         new StackFrame("CustomValidationDelegates.cs", 139),
                         new StackFrame(false),
-                        new StackFrame(false)})
+                        new StackFrame(false)
+                    ])
                 {
                     ExpectedException = new ExpectedException(
                         typeof(SecurityTokenException),
-                        nameof(CustomIssuerValidatorDelegates.CustomIssuerValidatorUnknownExceptionDelegate)),
+                        nameof(CustomIssuerValidatorDelegates.CustomIssuerValidatorUnknownExceptionDelegateAsync)),
                     IssuerValidationError = new CustomIssuerValidationError(
                         new MessageDetail(
-                            nameof(CustomIssuerValidatorDelegates.CustomIssuerValidatorUnknownExceptionDelegate), null),
+                            nameof(CustomIssuerValidatorDelegates.CustomIssuerValidatorUnknownExceptionDelegateAsync), null),
                         typeof(NotSupportedException),
                         new StackFrame("CustomValidationDelegates.cs", 139),
                         issuerGuid),
@@ -131,18 +134,19 @@ namespace Microsoft.IdentityModel.JsonWebTokens.Extensibility.Tests
                 theoryData.Add(new IssuerExtensibilityTheoryData(
                     "CustomIssuerValidatorCustomExceptionCustomFailureTypeDelegate",
                     issuerGuid,
-                    CustomIssuerValidatorDelegates.CustomIssuerValidatorCustomExceptionCustomFailureTypeDelegate,
-                    new List<StackFrame> {
+                    CustomIssuerValidatorDelegates.CustomIssuerValidatorCustomExceptionCustomFailureTypeDelegateAsync,
+                    [
                         new StackFrame("CustomValidationDelegates.cs", 123),
                         new StackFrame(false),
-                        new StackFrame(false)})
+                        new StackFrame(false)
+                    ])
                 {
                     ExpectedException = new ExpectedException(
                         typeof(CustomSecurityTokenInvalidIssuerException),
-                        nameof(CustomIssuerValidatorDelegates.CustomIssuerValidatorCustomExceptionCustomFailureTypeDelegate)),
+                        nameof(CustomIssuerValidatorDelegates.CustomIssuerValidatorCustomExceptionCustomFailureTypeDelegateAsync)),
                     IssuerValidationError = new CustomIssuerValidationError(
                         new MessageDetail(
-                            nameof(CustomIssuerValidatorDelegates.CustomIssuerValidatorCustomExceptionCustomFailureTypeDelegate), null),
+                            nameof(CustomIssuerValidatorDelegates.CustomIssuerValidatorCustomExceptionCustomFailureTypeDelegateAsync), null),
                         CustomIssuerValidationError.CustomIssuerValidationFailureType,
                         typeof(CustomSecurityTokenInvalidIssuerException),
                         new StackFrame("CustomValidationDelegates.cs", 123),
@@ -157,18 +161,19 @@ namespace Microsoft.IdentityModel.JsonWebTokens.Extensibility.Tests
                 theoryData.Add(new IssuerExtensibilityTheoryData(
                     "IssuerValidatorDelegate",
                     issuerGuid,
-                    CustomIssuerValidatorDelegates.IssuerValidatorDelegate,
-                    new List<StackFrame> {
+                    CustomIssuerValidatorDelegates.IssuerValidatorDelegateAsync,
+                    [
                         new StackFrame("CustomValidationDelegates.cs", 169),
                         new StackFrame(false),
-                        new StackFrame(false)})
+                        new StackFrame(false)
+                    ])
                 {
                     ExpectedException = new ExpectedException(
                         typeof(SecurityTokenInvalidIssuerException),
-                        nameof(CustomIssuerValidatorDelegates.IssuerValidatorDelegate)),
+                        nameof(CustomIssuerValidatorDelegates.IssuerValidatorDelegateAsync)),
                     IssuerValidationError = new IssuerValidationError(
                         new MessageDetail(
-                            nameof(CustomIssuerValidatorDelegates.IssuerValidatorDelegate), null),
+                            nameof(CustomIssuerValidatorDelegates.IssuerValidatorDelegateAsync), null),
                         typeof(SecurityTokenInvalidIssuerException),
                         new StackFrame("CustomValidationDelegates.cs", 169),
                         issuerGuid)
@@ -178,18 +183,19 @@ namespace Microsoft.IdentityModel.JsonWebTokens.Extensibility.Tests
                 theoryData.Add(new IssuerExtensibilityTheoryData(
                     "IssuerValidatorCustomIssuerExceptionTypeDelegate",
                     issuerGuid,
-                    CustomIssuerValidatorDelegates.IssuerValidatorCustomIssuerExceptionTypeDelegate,
-                    new List<StackFrame> {
+                    CustomIssuerValidatorDelegates.IssuerValidatorCustomIssuerExceptionTypeDelegateAsync,
+                    [
                         new StackFrame("CustomValidationDelegates.cs", 196),
                         new StackFrame(false),
-                        new StackFrame(false)})
+                        new StackFrame(false)
+                    ])
                 {
                     ExpectedException = new ExpectedException(
                         typeof(SecurityTokenException),
-                        nameof(CustomIssuerValidatorDelegates.IssuerValidatorCustomIssuerExceptionTypeDelegate)),
+                        nameof(CustomIssuerValidatorDelegates.IssuerValidatorCustomIssuerExceptionTypeDelegateAsync)),
                     IssuerValidationError = new IssuerValidationError(
                         new MessageDetail(
-                            nameof(CustomIssuerValidatorDelegates.IssuerValidatorCustomIssuerExceptionTypeDelegate), null),
+                            nameof(CustomIssuerValidatorDelegates.IssuerValidatorCustomIssuerExceptionTypeDelegateAsync), null),
                         typeof(CustomSecurityTokenInvalidIssuerException),
                         new StackFrame("CustomValidationDelegates.cs", 196),
                         issuerGuid)
@@ -199,18 +205,19 @@ namespace Microsoft.IdentityModel.JsonWebTokens.Extensibility.Tests
                 theoryData.Add(new IssuerExtensibilityTheoryData(
                     "IssuerValidatorCustomExceptionTypeDelegate",
                     issuerGuid,
-                    CustomIssuerValidatorDelegates.IssuerValidatorCustomExceptionTypeDelegate,
-                    new List<StackFrame> {
+                    CustomIssuerValidatorDelegates.IssuerValidatorCustomExceptionTypeDelegateAsync,
+                    [
                         new StackFrame("CustomValidationDelegates.cs", 210),
                         new StackFrame(false),
-                        new StackFrame(false)})
+                        new StackFrame(false)
+                    ])
                 {
                     ExpectedException = new ExpectedException(
                         typeof(SecurityTokenException),
-                        nameof(CustomIssuerValidatorDelegates.IssuerValidatorCustomExceptionTypeDelegate)),
+                        nameof(CustomIssuerValidatorDelegates.IssuerValidatorCustomExceptionTypeDelegateAsync)),
                     IssuerValidationError = new IssuerValidationError(
                         new MessageDetail(
-                            nameof(CustomIssuerValidatorDelegates.IssuerValidatorCustomExceptionTypeDelegate), null),
+                            nameof(CustomIssuerValidatorDelegates.IssuerValidatorCustomExceptionTypeDelegateAsync), null),
                         typeof(CustomSecurityTokenException),
                         new StackFrame("CustomValidationDelegates.cs", 210),
                         issuerGuid)
@@ -221,10 +228,10 @@ namespace Microsoft.IdentityModel.JsonWebTokens.Extensibility.Tests
                     "IssuerValidatorThrows",
                     issuerGuid,
                     CustomIssuerValidatorDelegates.IssuerValidatorThrows,
-                    new List<StackFrame> {
+                    [
                         new StackFrame("JsonWebTokenHandler.ValidateToken.Internal.cs", 300),
                         new StackFrame(false)
-                    })
+                    ])
                 {
                     ExpectedException = new ExpectedException(
                         typeof(SecurityTokenInvalidIssuerException),
