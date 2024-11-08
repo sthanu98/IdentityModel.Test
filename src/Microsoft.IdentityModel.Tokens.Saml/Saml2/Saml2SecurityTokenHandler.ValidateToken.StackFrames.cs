@@ -14,6 +14,7 @@ namespace Microsoft.IdentityModel.Tokens.Saml2
             // Stack frames from ValidateTokenAsync using SecurityToken
             internal static StackFrame? TokenNull;
             internal static StackFrame? TokenValidationParametersNull;
+            internal static StackFrame? IssuerSigningKeyValidationFailed;
             internal static StackFrame? IssuerValidationFailed;
             internal static StackFrame? SignatureValidationFailed;
 
