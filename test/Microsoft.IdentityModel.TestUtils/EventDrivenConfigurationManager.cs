@@ -15,11 +15,11 @@ namespace Microsoft.IdentityModel.TestUtils
         private T _configuration;
 
         /// <summary>
-        /// Initializes an new instance of <see cref="MockConfigurationManager{T}"/> with a Configuration instance.
+        /// Initializes an new instance of <see cref="EventDrivenConfigurationRetriever{T}"/> with a configuration instance.
         /// </summary>
-        /// <param name="configuration"></param>
-        /// <param name="signalEvent"></param>
-        /// <param name="waitEvent"></param>
+        /// <param name="configuration">The Configuration that will be returned</param>
+        /// <param name="signalEvent">A <see cref="ManualResetEvent"/>that is be signaled when inside GetConfigurationAsync.</param>
+        /// <param name="waitEvent">A <see cref="ManualResetEvent"/>that waits inside GetConfigurationAsync.</param>
         public EventDrivenConfigurationRetriever(
             T configuration,
             ManualResetEvent signalEvent,
@@ -53,13 +53,13 @@ namespace Microsoft.IdentityModel.TestUtils
         /// <summary>
         /// Initializes an new instance of <see cref="EventControlledConfigurationManger{T}"/> with a Configuration instance.
         /// </summary>
-        /// <param name="metadataAddress"></param>
-        /// <param name="configurationRetriever"></param>
-        /// <param name="documentRetriever"></param>
-        /// <param name="configSignalEvent"></param>
-        /// <param name="configWaitEvent"></param>
-        /// <param name="refreshSignalEvent"></param>
-        /// <param name="refreshWaitEvent"></param>
+        /// <param name="metadataAddress">The metadata address to obtain configuration.</param>
+        /// <param name="configurationRetriever">The <see cref="IConfigurationRetriever{T}"/>that reads the metadata.</param>
+        /// <param name="documentRetriever">The <see cref="IDocumentRetriever"/>that obtains the metadata.</param>
+        /// <param name="configSignalEvent">A <see cref="ManualResetEvent"/>that is signaled when GetConfigurationAsync is exiting.</param>
+        /// <param name="configWaitEvent">A <see cref="ManualResetEvent"/>that waits in GetConfigurationAsync after calling base.GetConfigurationAsync. </param>
+        /// <param name="refreshSignalEvent">A <see cref="ManualResetEvent"/> that is signaled when RequestRefresh is exiting.</param>
+        /// <param name="refreshWaitEvent">A <see cref="ManualResetEvent"/>that waits after base.RequestRefresh is called.</param>
         public EventControlledConfigurationManger(
             string metadataAddress,
             IConfigurationRetriever<T> configurationRetriever,

@@ -131,7 +131,8 @@ namespace Microsoft.IdentityModel.Protocols
         /// Obtains an updated version of Configuration.
         /// </summary>
         /// <returns>Configuration of type T.</returns>
-        /// <remarks>If the time since the last call is less than <see cref="BaseConfigurationManager.AutomaticRefreshInterval"/> then <see cref="IConfigurationRetriever{T}.GetConfigurationAsync"/> is not called and the current Configuration is returned.</remarks>
+        /// <remarks>If the time since the last call is less than <see cref="BaseConfigurationManager.AutomaticRefreshInterval"/> then
+        /// <see cref="IConfigurationRetriever{T}.GetConfigurationAsync"/> is not called and the current Configuration is returned.</remarks>
         public async Task<T> GetConfigurationAsync()
         {
             return await GetConfigurationAsync(CancellationToken.None).ConfigureAwait(false);
@@ -142,14 +143,15 @@ namespace Microsoft.IdentityModel.Protocols
         /// </summary>
         /// <param name="cancel">CancellationToken</param>
         /// <returns>Configuration of type T.</returns>
-        /// <remarks>If the time since the last call is less than <see cref="BaseConfigurationManager.AutomaticRefreshInterval"/> then <see cref="IConfigurationRetriever{T}.GetConfigurationAsync"/> is not called and the current Configuration is returned.</remarks>
+        /// <remarks>If the time since the last call is less than <see cref="BaseConfigurationManager.AutomaticRefreshInterval"/> then
+        /// <see cref="IConfigurationRetriever{T}.GetConfigurationAsync"/> is not called and the current Configuration is returned.</remarks>
         public virtual async Task<T> GetConfigurationAsync(CancellationToken cancel)
         {
             if (_currentConfiguration != null)
             {
                 // StartupTime is the time when ConfigurationManager was instantiated.
                 double nextRefresh = _automaticRefreshIntervalInSeconds + _timeInSecondsWhenLastAutomaticRefreshOccurred;
-                if (nextRefresh > (DateTimeOffset.UtcNow - StartupTime).TotalSeconds)
+                if (nextRefresh > SecondsSinceInstanceWasCreated())
                     return _currentConfiguration;
             }
 
@@ -170,7 +172,7 @@ namespace Microsoft.IdentityModel.Protocols
                     if (_currentConfiguration != null)
                         return _currentConfiguration;
 
-                    Interlocked.Exchange(ref _configurationRetrieverState, ConfigurationRetrieverRunning);
+                    _configurationRetrieverState = ConfigurationRetrieverRunning;
                     NumberOfTimesAutomaticRefreshRequested++;
 
                     // Don't use the individual CT here, this is a shared operation that shouldn't be affected by an individual's cancellation.
@@ -210,8 +212,8 @@ namespace Microsoft.IdentityModel.Protocols
                 }
                 finally
                 {
+                    _configurationRetrieverState = ConfigurationRetrieverIdle;
                     _configurationNullLock.Release();
-                    Interlocked.Exchange(ref _configurationRetrieverState, ConfigurationRetrieverIdle);
                 }
             }
             else
@@ -295,14 +297,14 @@ namespace Microsoft.IdentityModel.Protocols
         {
             _currentConfiguration = configuration;
             // StartupTime is the time when ConfigurationManager was instantiated.
-            // (DateTimeOffset.UtcNow - StartupTime).TotalSeconds is the number of seconds since ConfigurationManager was instantiated.
-            // For automatic refresh, we add a 5% jit.
+            // SecondsSinceInstanceWasCreated is the number of seconds since ConfigurationManager was instantiated.
+            // For automatic refresh, we add a 5% jitter.
             // Record in seconds when the last time configuration was obtained.
-            double secondsWhenRefreshOccurred = (DateTimeOffset.UtcNow - StartupTime).TotalSeconds +
-                                 ((_automaticRefreshIntervalInSeconds >= int.MaxValue) ? 0 : (new Random().Next((int)_automaticRefreshIntervalInSeconds / 20)));
+            double timeInSecondsWhenLastAutomaticRefreshOccurred = SecondsSinceInstanceWasCreated() +
+                                 ((_automaticRefreshIntervalInSeconds >= int.MaxValue) ? 0 : (_random.Next((int)_maxJitter)));
 
             // transfer to int in single operation.
-            _timeInSecondsWhenLastAutomaticRefreshOccurred = (int)((secondsWhenRefreshOccurred <= int.MaxValue) ? (int)secondsWhenRefreshOccurred : int.MaxValue);
+            _timeInSecondsWhenLastAutomaticRefreshOccurred = (int)((timeInSecondsWhenLastAutomaticRefreshOccurred <= int.MaxValue) ? (int)timeInSecondsWhenLastAutomaticRefreshOccurred : int.MaxValue);
         }
 
         /// <summary>
@@ -329,18 +331,27 @@ namespace Microsoft.IdentityModel.Protocols
                 return;
 
             double nextRefresh = _requestRefreshIntervalInSeconds + _timeInSecondsWhenLastRequestRefreshOccurred;
-            if (nextRefresh < (DateTimeOffset.UtcNow - StartupTime).TotalSeconds || _isFirstRefreshRequest)
+            if (nextRefresh < SecondsSinceInstanceWasCreated() || _isFirstRefreshRequest)
             {
                 _isFirstRefreshRequest = false;
                 if (Interlocked.CompareExchange(ref _configurationRetrieverState, ConfigurationRetrieverRunning, ConfigurationRetrieverIdle) == ConfigurationRetrieverIdle)
                 {
                     NumberOfTimesRequestRefreshRequested++;
-                    double recordWhenRefreshOccurred = (DateTimeOffset.UtcNow - StartupTime).TotalSeconds;
+                    double recordWhenRefreshOccurred = SecondsSinceInstanceWasCreated();
                     // transfer to int in single operation.
                     _timeInSecondsWhenLastRequestRefreshOccurred = (int)((recordWhenRefreshOccurred <= int.MaxValue) ? (int)recordWhenRefreshOccurred : int.MaxValue);
                     _ = Task.Run(UpdateCurrentConfiguration, CancellationToken.None);
                 }
             }
+        }
+
+        /// <summary>
+        /// SecondsSinceInstanceWasCreated is the number of seconds since ConfigurationManager was instantiated.
+        /// </summary>
+        /// <returns>double</returns>
+        private double SecondsSinceInstanceWasCreated()
+        {
+            return (DateTimeOffset.UtcNow - StartupTime).TotalSeconds;
         }
 
         /// <summary>

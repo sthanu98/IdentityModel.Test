@@ -13,6 +13,8 @@ Microsoft.IdentityModel.Tokens.BaseConfigurationManager.NumberOfTimesRequestRefr
 Microsoft.IdentityModel.Tokens.BaseConfigurationManager.StartupTime.get -> System.DateTimeOffset
 Microsoft.IdentityModel.Tokens.BaseConfigurationManager.StartupTime.set -> void
 Microsoft.IdentityModel.Tokens.BaseConfigurationManager._automaticRefreshIntervalInSeconds -> double
+Microsoft.IdentityModel.Tokens.BaseConfigurationManager._maxJitter -> double
+Microsoft.IdentityModel.Tokens.BaseConfigurationManager._random -> System.Random
 Microsoft.IdentityModel.Tokens.BaseConfigurationManager._requestRefreshIntervalInSeconds -> double
 Microsoft.IdentityModel.Tokens.BaseConfigurationManager._timeInSecondsWhenLastAutomaticRefreshOccurred -> int
 Microsoft.IdentityModel.Tokens.BaseConfigurationManager._timeInSecondsWhenLastRequestRefreshOccurred -> int

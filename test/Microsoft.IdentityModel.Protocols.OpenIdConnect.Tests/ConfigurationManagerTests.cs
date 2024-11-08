@@ -513,9 +513,9 @@ namespace Microsoft.IdentityModel.Protocols.OpenIdConnect.Tests
 
             // _timeInSecondsWhenLastAutomaticRefreshOccurred should not be greater than (totalSeconds + _automaticRefreshIntervalInSeconds / 20)
             // where we added 5% of a random amount between 0 and _automaticRefreshIntervalInSeconds.
-            if (configurationManager._timeInSecondsWhenLastAutomaticRefreshOccurred > (int)(totalSeconds + configurationManager._automaticRefreshIntervalInSeconds / 20))
+            if (configurationManager._timeInSecondsWhenLastAutomaticRefreshOccurred > (int)(totalSeconds + configurationManager._maxJitter))
                 context.Diffs.Add($"_timeInSecondsWhenLastAutomaticRefreshOccurred '{configurationManager._timeInSecondsWhenLastAutomaticRefreshOccurred}' > " +
-                    $"(int)(totalSeconds + configurationManager._automaticRefreshIntervalInSeconds / 20) '{(int)(totalSeconds + configurationManager._automaticRefreshIntervalInSeconds / 20)}'," +
+                    $"(int)(totalSeconds + configurationManager._automaticRefreshIntervalInSeconds / 20) '{(int)(totalSeconds + configurationManager._maxJitter)}'," +
                     $" _automaticRefreshIntervalInSeconds: '{configurationManager._automaticRefreshIntervalInSeconds}'.");
 
             TestUtilities.AssertFailIfErrors(context);
@@ -827,6 +827,17 @@ namespace Microsoft.IdentityModel.Protocols.OpenIdConnect.Tests
             IdentityComparer.AreEqual(configurationManager.GetValidLkgConfigurations().Length, 4, context);
 
             TestUtilities.AssertFailIfErrors(context);
+        }
+
+        [Fact]
+        public void TestMaxJitter()
+        {
+            var configurationManager = new ConfigurationManager<OpenIdConnectConfiguration>("OpenIdConnectMetadata.json", new OpenIdConnectConfigurationRetriever(), new FileDocumentRetriever());
+            Assert.Equal(configurationManager._automaticRefreshIntervalInSeconds / 20, configurationManager._maxJitter);
+            configurationManager.AutomaticRefreshInterval = TimeSpan.FromMinutes(5);
+            Assert.Equal(configurationManager._automaticRefreshIntervalInSeconds / 20, configurationManager._maxJitter);
+            configurationManager.AutomaticRefreshInterval = TimeSpan.MaxValue;
+            Assert.Equal(configurationManager._automaticRefreshIntervalInSeconds / 20, configurationManager._maxJitter);
         }
 
         [Theory, MemberData(nameof(ValidateOpenIdConnectConfigurationTestCases), DisableDiscoveryEnumeration = true)]

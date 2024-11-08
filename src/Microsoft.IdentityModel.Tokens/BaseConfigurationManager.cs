@@ -17,17 +17,20 @@ namespace Microsoft.IdentityModel.Tokens
     {
         private TimeSpan _automaticRefreshInterval = DefaultAutomaticRefreshInterval;
         internal double _automaticRefreshIntervalInSeconds = DefaultAutomaticRefreshInterval.TotalSeconds;
+        internal double _maxJitter = DefaultAutomaticRefreshInterval.TotalSeconds / 20;
         private TimeSpan _refreshInterval = DefaultRefreshInterval;
         internal double _requestRefreshIntervalInSeconds = DefaultRefreshInterval.TotalSeconds;
         private TimeSpan _lastKnownGoodLifetime = DefaultLastKnownGoodConfigurationLifetime;
         private BaseConfiguration _lastKnownGoodConfiguration;
         private DateTime? _lastKnownGoodConfigFirstUse;
+        internal Random _random = new();
 
         // Seconds since the BaseConfigurationManager was created when the last refresh occurred.
         internal int _timeInSecondsWhenLastAutomaticRefreshOccurred;
         internal int _timeInSecondsWhenLastRequestRefreshOccurred;
 
         internal EventBasedLRUCache<BaseConfiguration, DateTime> _lastKnownGoodConfigurationCache;
+
 
         /// <summary>
         /// Gets or sets the <see cref="TimeSpan"/> that controls how often an automatic metadata refresh should occur.
@@ -42,23 +45,27 @@ namespace Microsoft.IdentityModel.Tokens
 
                 _automaticRefreshInterval = value;
                 Interlocked.Exchange(ref _automaticRefreshIntervalInSeconds, value.TotalSeconds);
+                Interlocked.Exchange(ref _maxJitter, value.TotalSeconds / 20);
             }
         }
 
         /// <summary>
         /// Records the time this instance was created.
         /// Used to determine if the automatic refresh or request refresh interval has passed.
+        /// The logic is to remember the number of seconds since startup that the last refresh occurred.
+        /// Store that value in _timeInSecondsWhenLastAutomaticRefreshOccurred or _timeInSecondsWhenLastRequestRefreshOccurred.
+        /// Then compare to (UtcNow - Startup).TotalSeconds.
         /// The set is used for testing purposes.
         /// </summary>
         internal DateTimeOffset StartupTime { get; set; } = DateTimeOffset.UtcNow;
 
         /// <summary>
-        /// Each time GetConfigurationAsync() results in a http request, this value is incremented.
+        /// Each call to <see cref="GetBaseConfigurationAsync(CancellationToken)"/> results in a http request, this value is incremented.
         /// </summary>
         internal long NumberOfTimesAutomaticRefreshRequested { get; set; }
 
         /// <summary>
-        /// Each time RequestRefresh() results in a http request, this value is incremented.
+        /// Each call to <see cref="RequestRefresh"/> results in a http request, this value is incremented.
         /// </summary>
         internal long NumberOfTimesRequestRefreshRequested { get; set; }
 
