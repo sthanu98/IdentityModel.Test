@@ -17,6 +17,25 @@ namespace Microsoft.IdentityModel.Tokens.Saml2
     public partial class Saml2SecurityTokenHandler : SecurityTokenHandler
     {
         internal async Task<ValidationResult<ValidatedToken>> ValidateTokenAsync(
+            string token,
+            ValidationParameters validationParameters,
+            CallContext callContext,
+            CancellationToken cancellationToken)
+        {
+            if (token is null)
+                return ValidationError.NullParameter(nameof(token), ValidationError.GetCurrentStackFrame());
+
+            if (validationParameters is null)
+                return ValidationError.NullParameter(nameof(validationParameters), ValidationError.GetCurrentStackFrame());
+
+            var tokenReadingResult = ReadSaml2Token(token, callContext);
+            if (!tokenReadingResult.IsValid)
+                return tokenReadingResult.UnwrapError().AddCurrentStackFrame();
+
+            return await ValidateTokenAsync(tokenReadingResult.UnwrapResult(), validationParameters, callContext, cancellationToken).ConfigureAwait(false);
+        }
+
+        internal async Task<ValidationResult<ValidatedToken>> ValidateTokenAsync(
             Saml2SecurityToken samlToken,
             ValidationParameters validationParameters,
             CallContext callContext,
@@ -64,9 +83,12 @@ namespace Microsoft.IdentityModel.Tokens.Saml2
                 return validatedIssuerResult.UnwrapError().AddStackFrame(StackFrames.IssuerValidationFailed);
             }
 
-            // To be replaced with signature validation when the PR is merged.
-            if (validationParameters.IssuerSigningKeys.Count > 0)
-                samlToken.SigningKey = validationParameters.IssuerSigningKeys.First();
+            var signatureValidationResult = ValidateSignature(samlToken, validationParameters, callContext);
+            if (!signatureValidationResult.IsValid)
+            {
+                StackFrames.SignatureValidationFailed ??= new StackFrame(true);
+                return signatureValidationResult.UnwrapError().AddStackFrame(StackFrames.SignatureValidationFailed);
+            }
 
             var issuerSigningKeyValidationResult = validationParameters.IssuerSigningKeyValidator(
                 samlToken.SigningKey,
