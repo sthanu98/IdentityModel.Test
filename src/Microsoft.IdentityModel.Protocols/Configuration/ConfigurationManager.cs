@@ -292,7 +292,7 @@ namespace Microsoft.IdentityModel.Protocols
         /// <summary>
         /// Called only when configuration is successfully obtained.
         /// </summary>
-        /// <param name="configuration"></param>
+        /// <param name="configuration">Set <see cref="_currentConfiguration" /> to this value.</param>
         private void UpdateConfiguration(T configuration)
         {
             _currentConfiguration = configuration;
