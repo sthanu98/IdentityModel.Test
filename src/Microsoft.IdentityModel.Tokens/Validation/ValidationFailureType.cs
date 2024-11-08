@@ -106,6 +106,12 @@ namespace Microsoft.IdentityModel.Tokens
         private class TokenReadingFailure : ValidationFailureType { internal TokenReadingFailure(string name) : base(name) { } }
 
         /// <summary>
+        /// Defines a type that represents that a token exceeds the maximum size.
+        /// </summary>
+        public static readonly ValidationFailureType TokenExceedsMaximumSize = new TokenExceedsMaximumSizeFailure("TokenExceedsMaximumSize");
+        private class TokenExceedsMaximumSizeFailure : ValidationFailureType { internal TokenExceedsMaximumSizeFailure(string name) : base(name) { } }
+
+        /// <summary>
         /// Defines a type that represents that a JWE could not be decrypted.
         /// </summary>
         public static readonly ValidationFailureType TokenDecryptionFailed = new TokenDecryptionFailure("TokenDecryptionFailed");
