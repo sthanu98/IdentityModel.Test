@@ -8,10 +8,6 @@ namespace Microsoft.IdentityModel.Tokens.Saml
 {
     internal class SamlValidationError : ValidationError
     {
-        internal SamlValidationError(MessageDetail MessageDetail, ValidationFailureType failureType, Type exceptionType, StackFrame stackFrame) : base(MessageDetail, failureType, exceptionType, stackFrame)
-        {
-        }
-
         internal SamlValidationError(MessageDetail messageDetail, ValidationFailureType failureType, Type exceptionType, StackFrame stackFrame, Exception innerException) : base(messageDetail, failureType, exceptionType, stackFrame, innerException)
         {
         }

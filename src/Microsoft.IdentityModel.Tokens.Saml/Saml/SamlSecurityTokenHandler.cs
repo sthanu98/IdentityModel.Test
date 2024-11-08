@@ -805,49 +805,6 @@ namespace Microsoft.IdentityModel.Tokens.Saml
         }
 
         /// <summary>
-        /// Converts a string into an instance of <see cref="SamlSecurityToken"/>.
-        /// </summary>
-        /// <param name="token">a Saml token as a string.</param>
-        /// <param name="callContext">An opaque context used to store work when working with authentication artifacts.</param>
-        /// <returns>A <see cref="SamlSecurityToken"/></returns>
-        /// <exception cref="ArgumentNullException">If <paramref name="token"/> is null or empty.</exception>
-        /// <exception cref="ArgumentException">If 'token.Length' is greater than <see cref="TokenHandler.MaximumTokenSizeInBytes"/>.</exception>
-        internal virtual ValidationResult<SamlSecurityToken> ReadSamlToken(string token, CallContext callContext)
-        {
-            if (string.IsNullOrEmpty(token))
-                return ValidationError.NullParameter(nameof(token), ValidationError.GetCurrentStackFrame());
-
-            if (token.Length > MaximumTokenSizeInBytes)
-                return new ValidationError(
-                        new MessageDetail(
-                            TokenLogMessages.IDX10209,
-                            LogHelper.MarkAsNonPII(token.Length),
-                            LogHelper.MarkAsNonPII(MaximumTokenSizeInBytes)),
-                        ValidationFailureType.TokenReadingFailed,
-                        typeof(ArgumentException),
-                        ValidationError.GetCurrentStackFrame());
-
-            try
-            {
-                using (var reader = XmlDictionaryReader.CreateTextReader(Encoding.UTF8.GetBytes(token), XmlDictionaryReaderQuotas.Max))
-                {
-                    return ReadSamlToken(reader);
-                }
-            }
-#pragma warning disable CA1031 // Do not catch general exception types
-            catch (Exception ex)
-#pragma warning restore CA1031 // Do not catch general exception types
-            {
-                return new SamlValidationError(
-                    new MessageDetail(LogMessages.IDX11402, ex.Message),
-                    ValidationFailureType.TokenReadingFailed,
-                    typeof(SamlSecurityTokenReadException),
-                    ValidationError.GetCurrentStackFrame(),
-                    ex);
-            }
-        }
-
-        /// <summary>
         /// Returns a <see cref="SecurityKey"/> to use for validating the signature of a token.
         /// </summary>
         /// <param name="token">The <see cref="string"/> representation of the token that is being validated.</param>
