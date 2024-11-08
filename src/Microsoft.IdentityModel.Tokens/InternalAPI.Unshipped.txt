@@ -34,4 +34,6 @@ static Microsoft.IdentityModel.Tokens.ValidationError.GetCurrentStackFrame(strin
 static readonly Microsoft.IdentityModel.Tokens.ValidationFailureType.NoTokenAudiencesProvided -> Microsoft.IdentityModel.Tokens.ValidationFailureType
 static readonly Microsoft.IdentityModel.Tokens.ValidationFailureType.NoValidationParameterAudiencesProvided -> Microsoft.IdentityModel.Tokens.ValidationFailureType
 static readonly Microsoft.IdentityModel.Tokens.ValidationFailureType.SignatureAlgorithmValidationFailed -> Microsoft.IdentityModel.Tokens.ValidationFailureType
+static readonly Microsoft.IdentityModel.Tokens.ValidationFailureType.TokenExceedsMaximumSize -> Microsoft.IdentityModel.Tokens.ValidationFailureType
+static readonly Microsoft.IdentityModel.Tokens.ValidationFailureType.TokenIsNotSigned -> Microsoft.IdentityModel.Tokens.ValidationFailureType
 static readonly Microsoft.IdentityModel.Tokens.ValidationFailureType.XmlValidationFailed -> Microsoft.IdentityModel.Tokens.ValidationFailureType
