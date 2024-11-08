@@ -16,6 +16,25 @@ namespace Microsoft.IdentityModel.Tokens.Saml2
     public partial class Saml2SecurityTokenHandler : SecurityTokenHandler
     {
         internal async Task<ValidationResult<ValidatedToken>> ValidateTokenAsync(
+            string token,
+            ValidationParameters validationParameters,
+            CallContext callContext,
+            CancellationToken cancellationToken)
+        {
+            if (token is null)
+                return ValidationError.NullParameter(nameof(token), ValidationError.GetCurrentStackFrame());
+
+            if (validationParameters is null)
+                return ValidationError.NullParameter(nameof(validationParameters), ValidationError.GetCurrentStackFrame());
+
+            var tokenReadingResult = ReadSaml2Token(token, callContext);
+            if (!tokenReadingResult.IsValid)
+                return tokenReadingResult.UnwrapError().AddCurrentStackFrame();
+
+            return await ValidateTokenAsync(tokenReadingResult.UnwrapResult(), validationParameters, callContext, cancellationToken).ConfigureAwait(false);
+        }
+
+        internal async Task<ValidationResult<ValidatedToken>> ValidateTokenAsync(
             Saml2SecurityToken samlToken,
             ValidationParameters validationParameters,
             CallContext callContext,
