@@ -195,22 +195,6 @@ namespace Microsoft.IdentityModel.Tokens.Saml.Tests
 
             internal SigningCredentials? SigningCredentials { get; set; }
         }
-
-        private static Saml2SecurityToken CreateTokenForSignatureValidation(SigningCredentials? signingCredentials)
-        {
-            Saml2SecurityTokenHandler saml2TokenHandler = new Saml2SecurityTokenHandler();
-
-            SecurityTokenDescriptor securityTokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = Default.SamlClaimsIdentity,
-                SigningCredentials = signingCredentials,
-                Issuer = Default.Issuer,
-            };
-
-            Saml2SecurityToken samlToken = (Saml2SecurityToken)saml2TokenHandler.CreateToken(securityTokenDescriptor);
-
-            return saml2TokenHandler.ReadSaml2Token(samlToken.Assertion.CanonicalString);
-        }
     }
 }
 #nullable restore
