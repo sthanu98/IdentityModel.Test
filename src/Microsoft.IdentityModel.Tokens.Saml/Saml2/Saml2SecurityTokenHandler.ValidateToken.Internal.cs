@@ -82,6 +82,13 @@ namespace Microsoft.IdentityModel.Tokens.Saml2
                 return validatedIssuerResult.UnwrapError().AddStackFrame(StackFrames.IssuerValidationFailed);
             }
 
+            var signatureValidationResult = ValidateSignature(samlToken, validationParameters, callContext);
+            if (!signatureValidationResult.IsValid)
+            {
+                StackFrames.SignatureValidationFailed ??= new StackFrame(true);
+                return signatureValidationResult.UnwrapError().AddStackFrame(StackFrames.SignatureValidationFailed);
+            }
+
             return new ValidatedToken(samlToken, this, validationParameters);
         }
 
