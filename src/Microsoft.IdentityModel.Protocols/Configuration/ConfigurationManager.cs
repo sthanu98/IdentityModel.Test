@@ -166,14 +166,14 @@ namespace Microsoft.IdentityModel.Protocols
             //   else kick off task to update current configuration
             if (_currentConfiguration == null)
             {
+                await _configurationNullLock.WaitAsync(cancel).ConfigureAwait(false);
+                if (_currentConfiguration != null)
+                    return _currentConfiguration;
+
                 try
                 {
-                    await _configurationNullLock.WaitAsync(cancel).ConfigureAwait(false);
-                    if (_currentConfiguration != null)
-                        return _currentConfiguration;
-
                     _configurationRetrieverState = ConfigurationRetrieverRunning;
-                    NumberOfTimesAutomaticRefreshRequested++;
+                    Interlocked.Increment(ref NumberOfTimesAutomaticRefreshRequested);
 
                     // Don't use the individual CT here, this is a shared operation that shouldn't be affected by an individual's cancellation.
                     // The transport should have it's own timeouts, etc.
@@ -220,7 +220,7 @@ namespace Microsoft.IdentityModel.Protocols
             {
                 if (Interlocked.CompareExchange(ref _configurationRetrieverState, ConfigurationRetrieverRunning, ConfigurationRetrieverIdle) == ConfigurationRetrieverIdle)
                 {
-                    NumberOfTimesAutomaticRefreshRequested++;
+                    Interlocked.Increment(ref NumberOfTimesAutomaticRefreshRequested);
                     _ = Task.Run(UpdateCurrentConfiguration, CancellationToken.None);
                 }
             }
@@ -336,7 +336,7 @@ namespace Microsoft.IdentityModel.Protocols
                 _isFirstRefreshRequest = false;
                 if (Interlocked.CompareExchange(ref _configurationRetrieverState, ConfigurationRetrieverRunning, ConfigurationRetrieverIdle) == ConfigurationRetrieverIdle)
                 {
-                    NumberOfTimesRequestRefreshRequested++;
+                    Interlocked.Increment(ref NumberOfTimesRequestRefreshRequested);
                     double recordWhenRefreshOccurred = SecondsSinceInstanceWasCreated();
                     // transfer to int in single operation.
                     _timeInSecondsWhenLastRequestRefreshOccurred = (int)((recordWhenRefreshOccurred <= int.MaxValue) ? (int)recordWhenRefreshOccurred : int.MaxValue);

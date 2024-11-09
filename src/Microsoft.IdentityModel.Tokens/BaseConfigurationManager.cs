@@ -62,12 +62,12 @@ namespace Microsoft.IdentityModel.Tokens
         /// <summary>
         /// Each call to <see cref="GetBaseConfigurationAsync(CancellationToken)"/> results in a http request, this value is incremented.
         /// </summary>
-        internal long NumberOfTimesAutomaticRefreshRequested { get; set; }
+        internal long NumberOfTimesAutomaticRefreshRequested;
 
         /// <summary>
         /// Each call to <see cref="RequestRefresh"/> results in a http request, this value is incremented.
         /// </summary>
-        internal long NumberOfTimesRequestRefreshRequested { get; set; }
+        internal long NumberOfTimesRequestRefreshRequested;
 
         /// <summary>
         /// Default time interval (12 hours) after which a new configuration is obtained automatically.

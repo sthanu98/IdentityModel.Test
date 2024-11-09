@@ -723,6 +723,113 @@ namespace Microsoft.IdentityModel.Protocols.OpenIdConnect.Tests
             Assert.True(configurationManager.NumberOfTimesRequestRefreshRequested == 0, $"NumberOfTimesRequestRefreshWasRequested: '{configurationManager.NumberOfTimesRequestRefreshRequested}' != '0'.");
             Assert.True(configurationManager.NumberOfTimesAutomaticRefreshRequested == 1, $"NumberOfTimesAutomaticRefreshWasRequested: '{configurationManager.NumberOfTimesAutomaticRefreshRequested}' != '1'.");
         }
+
+        [Fact]
+        public async Task CancelWaitingOnSlimLockAsync()
+        {
+            // Purpose: Ensure that cancelling either an 'await' or Task() getting metadata does not break any locking.
+            // Even though we are using Signals, we do not have signals inside configurationManager when locks are released
+            // therefor Thread.Sleep(1000) is still needed.
+            CompareContext context = TestUtilities.WriteHeader($"{this}", $"{nameof(VerifySlimLockForGetConfigurationAsync)}", false);
+
+            ManualResetEvent docSignalEvent = new ManualResetEvent(false);
+            ManualResetEvent docWaitEvent = new ManualResetEvent(false);
+            ManualResetEvent mgrSignalEvent = new ManualResetEvent(false);
+            ManualResetEvent mgrWaitEvent = new ManualResetEvent(true);
+            ManualResetEvent mgrRefreshWaitEvent = new ManualResetEvent(true);
+            ManualResetEvent mgrRefreshSignalEvent = new ManualResetEvent(true);
+
+            InMemoryDocumentRetriever inMemoryDocumentRetriever = EventControlledInMemoryDocumentRetriever(docWaitEvent, docSignalEvent);
+            var configurationManager = new EventControlledConfigurationManger<OpenIdConnectConfiguration>(
+                    "AADCommonV1Json",
+                    new OpenIdConnectConfigurationRetriever(),
+                    inMemoryDocumentRetriever,
+                    mgrSignalEvent,
+                    mgrWaitEvent,
+                    mgrRefreshSignalEvent,
+                    mgrRefreshWaitEvent);
+
+
+#pragma warning disable CS4014
+            // This task will hold the SlimLock until docWaitEvent.Set() is called.
+            Task.Run(() => configurationManager.GetConfigurationAsync(CancellationToken.None));
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+
+            // wait until the document retriever is in GetDocumentAsync
+            docSignalEvent.WaitOne();
+
+            // Call GetConfigurationAsync() with a cancelled CancellationToken.
+            CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+            CancellationToken cancellationToken = cancellationTokenSource.Token;
+            cancellationTokenSource.Cancel();
+            bool caughtException = false;
+            try
+            {
+                // this call will block on SlimLock because the previous call is still running.
+                await configurationManager.GetConfigurationAsync(cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                caughtException = true;
+                if (ex.GetType() != typeof(OperationCanceledException))
+                    context.Diffs.Add($"ex.GetType(): '{ex.GetType()}' != typeof(OperationCanceledException).");
+            }
+
+            if (!caughtException)
+                context.Diffs.Add("Expected OperationCanceledException to be thrown.");
+
+            // Run a Task with GetConfigurationAsync(), then cancel.
+            cancellationTokenSource = new CancellationTokenSource();
+            cancellationToken = cancellationTokenSource.Token;
+            caughtException = false;
+            try
+            {
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                Task task = Task.Run(() => configurationManager.GetConfigurationAsync(cancellationToken));
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                cancellationTokenSource.Cancel();
+                await task.WaitAsync(TimeSpan.MaxValue, TimeProvider.System);
+            }
+            catch (Exception ex)
+            {
+                caughtException = true;
+                if (ex.GetType() != typeof(TaskCanceledException))
+                    context.Diffs.Add($"ex.GetType(): '{ex.GetType()}' != typeof(TaskCanceledException).");
+            }
+
+            if (!caughtException)
+                context.Diffs.Add("Expected TaskCanceledException to be thrown.");
+
+            // set _configuration so that the next call to GetConfigurationAsync will not block on the SemaphoreSlim.
+            // set StartupTime in the past so that metadata will be obtained as AutomaticRefreshInterval will have passed.
+            // the Interlock will block an update.
+            TestUtilities.SetField(configurationManager, "_currentConfiguration", OpenIdConfigData.AADCommonV1Config);
+            configurationManager.StartupTime = DateTimeOffset.UtcNow - TimeSpan.FromDays(1);
+            await configurationManager.GetConfigurationAsync(CancellationToken.None);
+
+            // release the document retriever, state moves to Idle, interlock should allow the next call to finish.
+            docWaitEvent.Set();
+            Thread.Sleep(1000);
+
+            // set _configuration so that the next call to GetConfigurationAsync will not block on the SemaphoreSlim.
+            // set StartupTime in the past so that metadata will be obtained as AutomaticRefreshInterval will have passed.
+            // Another call to GetConfigurationAsync should report another request was made.
+            mgrSignalEvent.Reset();
+            configurationManager.StartupTime = DateTimeOffset.UtcNow - TimeSpan.FromDays(2);
+            await configurationManager.GetConfigurationAsync(CancellationToken.None);
+            mgrSignalEvent.WaitOne();
+            Thread.Sleep(1000);
+
+            // RequestRefresh() should report a request was made.
+            mgrRefreshSignalEvent.Reset();
+            configurationManager.RequestRefresh();
+            mgrRefreshSignalEvent.WaitOne();
+            Thread.Sleep(1000);
+
+            // ensure correct number of metadata requests have occurred.
+            Assert.True(configurationManager.NumberOfTimesRequestRefreshRequested == 1, $"NumberOfTimesRequestRefreshWasRequested: '{configurationManager.NumberOfTimesRequestRefreshRequested}' != '1'.");
+            Assert.True(configurationManager.NumberOfTimesAutomaticRefreshRequested == 2, $"NumberOfTimesAutomaticRefreshWasRequested: '{configurationManager.NumberOfTimesAutomaticRefreshRequested}' != '2'.");
+        }
         #endregion
 
         [Fact]

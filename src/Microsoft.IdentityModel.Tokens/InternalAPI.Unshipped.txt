@@ -6,10 +6,8 @@ Microsoft.IdentityModel.Tokens.AlgorithmValidationError.InvalidAlgorithm.get -> 
 Microsoft.IdentityModel.Tokens.AlgorithmValidationError._invalidAlgorithm -> string
 Microsoft.IdentityModel.Tokens.AudienceValidationError.AudienceValidationError(Microsoft.IdentityModel.Tokens.MessageDetail messageDetail, Microsoft.IdentityModel.Tokens.ValidationFailureType failureType, System.Type exceptionType, System.Diagnostics.StackFrame stackFrame, System.Collections.Generic.IList<string> tokenAudiences, System.Collections.Generic.IList<string> validAudiences) -> void
 Microsoft.IdentityModel.Tokens.AudienceValidationError.TokenAudiences.get -> System.Collections.Generic.IList<string>
-Microsoft.IdentityModel.Tokens.BaseConfigurationManager.NumberOfTimesAutomaticRefreshRequested.get -> long
-Microsoft.IdentityModel.Tokens.BaseConfigurationManager.NumberOfTimesAutomaticRefreshRequested.set -> void
-Microsoft.IdentityModel.Tokens.BaseConfigurationManager.NumberOfTimesRequestRefreshRequested.get -> long
-Microsoft.IdentityModel.Tokens.BaseConfigurationManager.NumberOfTimesRequestRefreshRequested.set -> void
+Microsoft.IdentityModel.Tokens.BaseConfigurationManager.NumberOfTimesAutomaticRefreshRequested -> long
+Microsoft.IdentityModel.Tokens.BaseConfigurationManager.NumberOfTimesRequestRefreshRequested -> long
 Microsoft.IdentityModel.Tokens.BaseConfigurationManager.StartupTime.get -> System.DateTimeOffset
 Microsoft.IdentityModel.Tokens.BaseConfigurationManager.StartupTime.set -> void
 Microsoft.IdentityModel.Tokens.BaseConfigurationManager._automaticRefreshIntervalInSeconds -> double
