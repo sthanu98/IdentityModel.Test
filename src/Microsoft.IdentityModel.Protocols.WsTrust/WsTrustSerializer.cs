@@ -1198,7 +1198,7 @@ namespace Microsoft.IdentityModel.Protocols.WsTrust
 
             try
             {
-                writer.WriteStartElement(serializationContext.TrustConstants.Prefix, WsTrustElements.ActAs, serializationContext.TrustConstants.Namespace);
+                writer.WriteStartElement(serializationContext.TrustConstants.Prefix, WsTrustElements.ActAs, WsTrust14Constants.Trust14.Namespace);
                 if (actAs.SecurityToken != null)
                 {
                     bool tryWriteSucceeded = false;
@@ -1357,6 +1357,9 @@ namespace Microsoft.IdentityModel.Protocols.WsTrust
 
                 if (trustRequest.OnBehalfOf != null)
                     WriteOnBehalfOf(writer, serializationContext, trustRequest.OnBehalfOf);
+
+                if (trustRequest.ActAs != null)
+                    WriteActAs(writer, serializationContext, trustRequest.ActAs);
 
                 if (trustRequest.AdditionalContext != null)
                     WsFedSerializer.WriteAdditionalContext(writer, serializationContext, trustRequest.AdditionalContext);
