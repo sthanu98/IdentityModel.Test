@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
@@ -60,10 +61,7 @@ namespace Microsoft.IdentityModel.Tokens.Saml
             ValidationResult<ValidatedConditions> conditionsResult = ValidateConditions(samlToken, validationParameters, callContext);
 
             if (!conditionsResult.IsValid)
-            {
-                StackFrames.AssertionConditionsValidationFailed ??= new StackFrame(true);
-                return conditionsResult.UnwrapError().AddStackFrame(StackFrames.AssertionConditionsValidationFailed);
-            }
+                return conditionsResult.UnwrapError().AddCurrentStackFrame();
 
             ValidationResult<ValidatedIssuer> issuerValidationResult = await validationParameters.IssuerValidatorAsync(
                 samlToken.Issuer,
@@ -78,12 +76,16 @@ namespace Microsoft.IdentityModel.Tokens.Saml
                 return issuerValidationResult.UnwrapError().AddStackFrame(StackFrames.IssuerValidationFailed);
             }
 
-            ValidationResult<SecurityKey> signatureValidationResult = ValidateSignature(samlToken, validationParameters, callContext);
-
-            if (!signatureValidationResult.IsValid)
+            if (samlToken.Assertion.Conditions is not null)
             {
-                StackFrames.SignatureValidationFailed ??= new StackFrame(true);
-                return signatureValidationResult.UnwrapError().AddStackFrame(StackFrames.SignatureValidationFailed);
+                ValidationResult<DateTime?> tokenReplayValidationResult = Validators.ValidateTokenReplay(
+                    samlToken.Assertion.Conditions.NotOnOrAfter,
+                    samlToken.Assertion.CanonicalString,
+                    validationParameters,
+                    callContext);
+
+                if (!tokenReplayValidationResult.IsValid)
+                    return tokenReplayValidationResult.UnwrapError().AddCurrentStackFrame();
             }
 
             ValidationResult<ValidatedSigningKeyLifetime> issuerSigningKeyValidationResult = validationParameters.IssuerSigningKeyValidator(
@@ -94,9 +96,14 @@ namespace Microsoft.IdentityModel.Tokens.Saml
                 callContext);
 
             if (!issuerSigningKeyValidationResult.IsValid)
+                return issuerSigningKeyValidationResult.UnwrapError().AddCurrentStackFrame();
+
+            ValidationResult<SecurityKey> signatureValidationResult = ValidateSignature(samlToken, validationParameters, callContext);
+
+            if (!signatureValidationResult.IsValid)
             {
-                StackFrames.IssuerSigningKeyValidationFailed ??= new StackFrame(true);
-                return issuerSigningKeyValidationResult.UnwrapError().AddStackFrame(StackFrames.IssuerSigningKeyValidationFailed);
+                StackFrames.SignatureValidationFailed ??= new StackFrame(true);
+                return signatureValidationResult.UnwrapError().AddStackFrame(StackFrames.SignatureValidationFailed);
             }
 
             return new ValidatedToken(samlToken, this, validationParameters);
