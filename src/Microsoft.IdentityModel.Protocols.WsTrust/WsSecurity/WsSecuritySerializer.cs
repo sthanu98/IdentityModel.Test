@@ -25,10 +25,15 @@
 //
 //------------------------------------------------------------------------------
 
+using System;
 using System.IO;
 using System.Text;
 using System.Xml;
 using Microsoft.IdentityModel.Logging;
+using Microsoft.IdentityModel.Protocols.WsTrust;
+using Microsoft.IdentityModel.Protocols.WsTrust.SoapEnvelope;
+using Microsoft.IdentityModel.Protocols.WsTrust.WsAddressing;
+using Microsoft.IdentityModel.Protocols.WsTrust.WsUtility;
 using Microsoft.IdentityModel.Protocols.WsUtility;
 using Microsoft.IdentityModel.Xml;
 
@@ -189,6 +194,36 @@ namespace Microsoft.IdentityModel.Protocols.WsSecurity
             if (securityTokenReference.KeyIdentifier != null)
                 WriteKeyIdentifier(writer, securityTokenReference.KeyIdentifier);
 
+            writer.WriteEndElement();
+        }
+
+        /// <summary>
+        /// Writes Security Header
+        /// </summary>
+        /// <param name="writer"></param>
+        /// <param name="serializationContext"></param>
+        /// <param name="timestamp"></param>
+        /// <param name="token"></param>
+        public static void WriteSecurityHeader(XmlDictionaryWriter writer, WsSerializationContext serializationContext, Timestamp timestamp, string token)
+        {
+            WsUtils.ValidateParamsForWritting(writer, serializationContext, timestamp, nameof(timestamp));
+
+            writer.WriteStartElement(WsSecurityConstants.WsSecurity10.Prefix, WsSecurityElements.Security, WsSecurityConstants.WsSecurity10.Namespace);
+            writer.WriteAttributeString(SoapEnvelopeAttributes.MustUnderstand, SoapEnvelopeConstants.SoapEnvelope12Constants.Namespace, "1");
+            WsUtilitySerializer.WriteTimestamp(writer, serializationContext, timestamp);
+            WriteBinarySecurityToken(writer, serializationContext, token);
+            writer.WriteEndElement();
+        }
+
+        internal static void WriteBinarySecurityToken(XmlDictionaryWriter writer, WsSerializationContext serializationContext, string token)
+        {
+            WsUtils.ValidateParamsForWritting(writer, serializationContext, token, nameof(token));
+
+            writer.WriteStartElement(WsSecurityConstants.WsSecurity10.Prefix, WsSecurityElements.BinarySecurityToken, WsSecurityConstants.WsSecurity10.Namespace);
+            writer.WriteAttributeString(WsUtilityAttributes.Id, "uuid-b2a0e470-b3a2-4e43-995c-7a48d3988069-9");
+            writer.WriteAttributeString(WsSecurityAttributes.ValueType, "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3");
+            writer.WriteAttributeString(WsSecurityAttributes.EncodingType, "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary");
+            writer.WriteString(token);
             writer.WriteEndElement();
         }
     }

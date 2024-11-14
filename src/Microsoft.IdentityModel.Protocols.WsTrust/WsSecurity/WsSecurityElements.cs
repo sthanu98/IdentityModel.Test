@@ -82,5 +82,10 @@ namespace Microsoft.IdentityModel.Protocols.WsSecurity
         /// Gets the value for "UsernameToken"
         /// </summary>
         public const string UsernameToken = "UsernameToken";
+
+        /// <summary>
+        /// Gets the value for "Security"
+        /// </summary>
+        public const string Security = "Security";
     }
 }
