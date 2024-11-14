@@ -30,6 +30,7 @@ using Microsoft.IdentityModel.Protocols.WsFed;
 using Microsoft.IdentityModel.Protocols.WsPolicy;
 using Microsoft.IdentityModel.Protocols.WsSecurity;
 using Microsoft.IdentityModel.Protocols.WsTrust;
+using Microsoft.IdentityModel.Protocols.WsTrust.SoapEnvelope;
 
 namespace Microsoft.IdentityModel.Protocols
 {
@@ -46,6 +47,7 @@ namespace Microsoft.IdentityModel.Protocols
         public WsSerializationContext(WsTrustVersion wsTrustVersion)
         {
             TrustVersion = wsTrustVersion;
+            SoapEnvelopeConstants = SoapEnvelopeConstants.SoapEnvelope12Constants;
 
             if (wsTrustVersion is WsTrustFeb2005Version)
             {
@@ -78,6 +80,11 @@ namespace Microsoft.IdentityModel.Protocols
                 TrustKeyTypes = WsTrustKeyTypes.Trust14;
             }
         }
+
+        /// <summary>
+        /// Gets the <see cref="SoapEnvelopeConstants"/> associated with the <see cref="WsTrustVersion"/> passed to constructor.
+        /// </summary>
+        public SoapEnvelopeConstants SoapEnvelopeConstants { get; }
 
         /// <summary>
         /// Gets the <see cref="WsAddressingConstants"/> associated with the <see cref="WsTrustVersion"/> passed to constructor.
