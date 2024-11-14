@@ -26,8 +26,12 @@
 //------------------------------------------------------------------------------
 
 using System.Xml;
+using System.Xml.Serialization;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Protocols.WsTrust;
+using Microsoft.IdentityModel.Protocols.WsTrust.SoapEnvelope;
+using Microsoft.IdentityModel.Protocols.WsTrust.WsAddressing;
+using Microsoft.IdentityModel.Protocols.WsUtility;
 using Microsoft.IdentityModel.Xml;
 
 namespace Microsoft.IdentityModel.Protocols.WsAddressing
@@ -37,6 +41,9 @@ namespace Microsoft.IdentityModel.Protocols.WsAddressing
     /// </summary>
     internal class WsAddressingSerializer
     {
+        /// <summary>
+        /// Constructor
+        /// </summary>
         public WsAddressingSerializer()
         {
         }
@@ -102,6 +109,62 @@ namespace Microsoft.IdentityModel.Protocols.WsAddressing
             foreach (XmlElement element in endpointReference.AdditionalXmlElements)
                 element.WriteTo(writer);
 
+            writer.WriteEndElement();
+        }
+
+        public static void WriteMessageInfoHeaders(XmlDictionaryWriter writer, WsSerializationContext serializationContext, ActionHeader actionHeader, MessageIDHeader messageIDHeader, ToHeader toHeader, ReplyToHeader replyToHeader)
+        {
+            WriteActionHeader(writer, serializationContext, actionHeader);
+            WriteMessageIDHeader(writer, serializationContext, messageIDHeader);
+            WriteToHeader(writer, serializationContext, toHeader);
+            WriteReplyToHeader(writer, serializationContext, replyToHeader);
+        }
+
+        public static void WriteActionHeader(XmlDictionaryWriter writer, WsSerializationContext serializationContext, ActionHeader actionHeader)
+        {
+            WsUtils.ValidateParamsForWritting(writer, serializationContext, actionHeader, nameof(actionHeader));
+
+            writer.WriteStartElement(serializationContext.AddressingConstants.Prefix, WsAddressingElements.Action, serializationContext.AddressingConstants.Namespace);
+            writer.WriteString(actionHeader.Action);
+            writer.WriteEndElement();
+        }
+
+        public static void WriteMessageIDHeader(XmlDictionaryWriter writer, WsSerializationContext serializationContext, MessageIDHeader messageIDHeader)
+        {
+            WsUtils.ValidateParamsForWritting(writer, serializationContext, messageIDHeader, nameof(messageIDHeader));
+
+            writer.WriteStartElement(serializationContext.AddressingConstants.Prefix, WsAddressingElements.MessageId, serializationContext.AddressingConstants.Namespace);
+            if (MessageIDHeader.MustUnderstand)
+            {
+                writer.WriteAttributeString(SoapEnvelopeAttributes.MustUnderstand, SoapEnvelopeConstants.SoapEnvelope12Constants.Namespace, "1");
+            }
+            writer.WriteString(messageIDHeader.MessageId.ToString());
+            writer.WriteEndElement();
+        }
+
+        public static void WriteToHeader(XmlDictionaryWriter writer, WsSerializationContext serializationContext, ToHeader toHeader)
+        {
+            WsUtils.ValidateParamsForWritting(writer, serializationContext, toHeader, nameof(toHeader));
+
+            writer.WriteStartElement(serializationContext.AddressingConstants.Prefix, WsAddressingElements.To, serializationContext.AddressingConstants.Namespace);
+            if (MessageIDHeader.MustUnderstand)
+            {
+                writer.WriteAttributeString(SoapEnvelopeAttributes.MustUnderstand, SoapEnvelopeConstants.SoapEnvelope12Constants.Namespace, "1");
+            }
+            // TODO: Add ID attribute from ws-security
+            writer.WriteAttributeString(WsUtilityAttributes.Id, WsUtilityConstants.WsUtility10.Namespace, "_1");
+            writer.WriteString(toHeader.To.ToString());
+            writer.WriteEndElement();
+        }
+
+        public static void WriteReplyToHeader(XmlDictionaryWriter writer, WsSerializationContext serializationContext, ReplyToHeader replyToHeader)
+        {
+            WsUtils.ValidateParamsForWritting(writer, serializationContext, replyToHeader, nameof(replyToHeader));
+
+            writer.WriteStartElement(serializationContext.AddressingConstants.Prefix, WsAddressingElements.ReplyTo, serializationContext.AddressingConstants.Namespace);
+            writer.WriteStartElement(serializationContext.AddressingConstants.Prefix, WsAddressingElements.Address, serializationContext.AddressingConstants.Namespace);
+            writer.WriteString(replyToHeader.ReplyTo.Uri.ToString());
+            writer.WriteEndElement();
             writer.WriteEndElement();
         }
     }

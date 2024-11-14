@@ -6,6 +6,7 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <PackageId>Microsoft.IdentityModel.Protocols.WsTrust</PackageId>
     <PackageTags>.NET;Windows;Authentication;Identity;WsTrust</PackageTags>
+    <Version>$(VersionPrefix)-$(VersionSuffix)-8</Version>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
     <DebugType>full</DebugType>
