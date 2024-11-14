@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Text;
 using Microsoft.IdentityModel.Protocols.WsUtility;
 using System.Xml;
-using Microsoft.IdentityModel.Protocols.WsSecurity;
 
 namespace Microsoft.IdentityModel.Protocols.WsTrust.WsUtility
 {
@@ -18,18 +17,18 @@ namespace Microsoft.IdentityModel.Protocols.WsTrust.WsUtility
 
         internal static void WriteTimestamp(XmlDictionaryWriter writer, WsSerializationContext serializationContext, Timestamp timestamp)
         {
-            writer.WriteStartElement(serializationContext.UtilityConstants.Prefix, WsUtilityElements.Timestamp, serializationContext.SecurityConstants.Namespace);
-            writer.WriteAttributeString(WsUtilityAttributes.Id, "_0");
+            writer.WriteStartElement(serializationContext.UtilityConstants.Prefix, WsUtilityElements.Timestamp, serializationContext.UtilityConstants.Namespace);
+            writer.WriteAttributeString(WsUtilityAttributes.Id, serializationContext.UtilityConstants.Namespace,  "_0");
             if (timestamp.Created.HasValue)
             {
-                writer.WriteStartElement(serializationContext.UtilityConstants.Prefix, WsUtilityElements.Created, serializationContext.UtilityConstants.Prefix);
+                writer.WriteStartElement(serializationContext.UtilityConstants.Prefix, WsUtilityElements.Created, serializationContext.UtilityConstants.Namespace);
                 writer.WriteString(XmlConvert.ToString(timestamp.Created.Value.ToUniversalTime(), GeneratedDateTimeFormat));
                 writer.WriteEndElement();
             }
 
             if (timestamp.Expires.HasValue)
             {
-                writer.WriteStartElement(serializationContext.UtilityConstants.Prefix, WsUtilityElements.Expires, serializationContext.UtilityConstants.Prefix);
+                writer.WriteStartElement(serializationContext.UtilityConstants.Prefix, WsUtilityElements.Expires, serializationContext.UtilityConstants.Namespace);
                 writer.WriteString(XmlConvert.ToString(timestamp.Expires.Value.ToUniversalTime(), GeneratedDateTimeFormat));
                 writer.WriteEndElement();
             }

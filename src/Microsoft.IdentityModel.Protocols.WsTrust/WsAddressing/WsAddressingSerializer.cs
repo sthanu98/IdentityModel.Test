@@ -125,6 +125,10 @@ namespace Microsoft.IdentityModel.Protocols.WsAddressing
             WsUtils.ValidateParamsForWritting(writer, serializationContext, actionHeader, nameof(actionHeader));
 
             writer.WriteStartElement(serializationContext.AddressingConstants.Prefix, WsAddressingElements.Action, serializationContext.AddressingConstants.Namespace);
+            if (ActionHeader.MustUnderstand)
+            {
+                writer.WriteAttributeString(SoapEnvelopeAttributes.MustUnderstand, SoapEnvelopeConstants.SoapEnvelope12Constants.Namespace, "1");
+            }
             writer.WriteString(actionHeader.Action);
             writer.WriteEndElement();
         }
@@ -147,7 +151,7 @@ namespace Microsoft.IdentityModel.Protocols.WsAddressing
             WsUtils.ValidateParamsForWritting(writer, serializationContext, toHeader, nameof(toHeader));
 
             writer.WriteStartElement(serializationContext.AddressingConstants.Prefix, WsAddressingElements.To, serializationContext.AddressingConstants.Namespace);
-            if (MessageIDHeader.MustUnderstand)
+            if (ToHeader.MustUnderstand)
             {
                 writer.WriteAttributeString(SoapEnvelopeAttributes.MustUnderstand, SoapEnvelopeConstants.SoapEnvelope12Constants.Namespace, "1");
             }

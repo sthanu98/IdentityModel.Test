@@ -29,6 +29,8 @@ namespace Microsoft.IdentityModel.Protocols.WsTrust.SoapEnvelope
             WsUtils.ValidateParamsForWritting(writer, serializationContext, wsTrustRequest, nameof(wsTrustRequest));
 
             writer.WriteStartElement(serializationContext.SoapEnvelopeConstants.Prefix, SoapEnvelopeElements.Envelope, serializationContext.SoapEnvelopeConstants.Namespace);
+            writer.WriteAttributeString(serializationContext.AddressingConstants.Prefix, serializationContext.AddressingConstants.Namespace);
+            writer.WriteAttributeString(serializationContext.UtilityConstants.Prefix, serializationContext.UtilityConstants.Namespace);
 
             // Header element
             writer.WriteStartElement(serializationContext.SoapEnvelopeConstants.Prefix, SoapEnvelopeElements.Header, serializationContext.SoapEnvelopeConstants.Namespace);
