@@ -6,6 +6,7 @@ using System.Xml;
 using Microsoft.IdentityModel.Protocols.WsAddressing;
 using Microsoft.IdentityModel.Protocols.WsSecurity;
 using Microsoft.IdentityModel.Protocols.WsTrust.WsUtility;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Microsoft.IdentityModel.Protocols.WsTrust.SoapEnvelope
 {
@@ -21,9 +22,8 @@ namespace Microsoft.IdentityModel.Protocols.WsTrust.SoapEnvelope
         /// <param name="serializationContext"></param>
         /// <param name="addressingHeaders"></param>
         /// <param name="wsTrustRequest"></param>
-        /// <param name="timestamp"></param>
         /// <param name="token"></param>
-        public static void WriteSoapEnvelopeHeaders(XmlDictionaryWriter writer, WsSerializationContext serializationContext, AddressingHeaders addressingHeaders, WsTrustRequest wsTrustRequest, Timestamp timestamp, string token)
+        public static void WriteSoapEnvelopeHeaders(XmlDictionaryWriter writer, WsSerializationContext serializationContext, AddressingHeaders addressingHeaders, WsTrustRequest wsTrustRequest, X509Certificate2 token)
         {
             WsUtils.ValidateParamsForWritting(writer, serializationContext, addressingHeaders, nameof(addressingHeaders));
             WsUtils.ValidateParamsForWritting(writer, serializationContext, wsTrustRequest, nameof(wsTrustRequest));
@@ -36,7 +36,7 @@ namespace Microsoft.IdentityModel.Protocols.WsTrust.SoapEnvelope
             writer.WriteStartElement(serializationContext.SoapEnvelopeConstants.Prefix, SoapEnvelopeElements.Header, serializationContext.SoapEnvelopeConstants.Namespace);
             WsAddressingSerializer.WriteMessageInfoHeaders(writer, serializationContext, addressingHeaders.ActionHeader, addressingHeaders.MessageIDHeader, addressingHeaders.ToHeader, addressingHeaders.ReplyToHeader);
             // TODO: Add Security Header
-            WsSecuritySerializer.WriteSecurityHeader(writer, serializationContext, timestamp, token);
+            WsSecuritySerializer.WriteSecurityHeader(writer, serializationContext, token);
             writer.WriteEndElement();
 
 

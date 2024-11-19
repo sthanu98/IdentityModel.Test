@@ -14,11 +14,17 @@ namespace Microsoft.IdentityModel.Protocols.WsTrust.WsUtility
     public static class WsUtilitySerializer
     {
         internal const string GeneratedDateTimeFormat = "yyyy-MM-ddTHH:mm:ss.fffffZ";
+        private static readonly double timestampValidityDuration = 5;
+        private static int idCounter;
 
-        internal static void WriteTimestamp(XmlDictionaryWriter writer, WsSerializationContext serializationContext, Timestamp timestamp)
+        internal static void WriteTimestamp(XmlDictionaryWriter writer, WsSerializationContext serializationContext)
         {
+            DateTime now = DateTime.UtcNow;
+            string id = GenerateId();
+            SecurityTimestamp timestamp = new SecurityTimestamp(now, now.AddMinutes(timestampValidityDuration), id);
+
             writer.WriteStartElement(serializationContext.UtilityConstants.Prefix, WsUtilityElements.Timestamp, serializationContext.UtilityConstants.Namespace);
-            writer.WriteAttributeString(WsUtilityAttributes.Id, serializationContext.UtilityConstants.Namespace,  "_0");
+            writer.WriteAttributeString(WsUtilityAttributes.Id, serializationContext.UtilityConstants.Namespace,  timestamp.Id);
             if (timestamp.Created.HasValue)
             {
                 writer.WriteStartElement(serializationContext.UtilityConstants.Prefix, WsUtilityElements.Created, serializationContext.UtilityConstants.Namespace);
@@ -34,6 +40,12 @@ namespace Microsoft.IdentityModel.Protocols.WsTrust.WsUtility
             }
 
             writer.WriteEndElement();
+        }
+
+        private static string GenerateId()
+        {
+            int id = idCounter++;
+            return "_" + id;
         }
     }
 }

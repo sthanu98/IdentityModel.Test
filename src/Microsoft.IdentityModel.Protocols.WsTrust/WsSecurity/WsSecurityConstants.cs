@@ -59,6 +59,16 @@ namespace Microsoft.IdentityModel.Protocols.WsSecurity
         /// Gets EncodingTypes for WS-Security.
         /// </summary>
         public WsSecurityEncodingTypes EncodingTypes { get; protected set; }
+
+        /// <summary>
+        /// Gets X509TokenType for WS-Security.
+        /// </summary>
+        public string X509TokenType { get; protected set; }
+
+        /// <summary>
+        /// Gets Base64EncodingType for WS-Security.
+        /// </summary>
+        public string Base64EncodingType { get; protected set; }
     }
 
     /// <summary>
@@ -75,6 +85,8 @@ namespace Microsoft.IdentityModel.Protocols.WsSecurity
             FragmentBaseAddress = "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0";
             Prefix = "wsse";
             Namespace = "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd";
+            X509TokenType = "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3";
+            Base64EncodingType = "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary";
         }
     }
 

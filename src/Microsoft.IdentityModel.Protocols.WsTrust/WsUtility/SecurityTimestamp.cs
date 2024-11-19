@@ -9,31 +9,33 @@ namespace Microsoft.IdentityModel.Protocols.WsTrust.WsUtility
     /// The Timestamp element provides a mechanism for expressing the creation and expiration times of the security semantics in a message.
     /// <para>see: http://docs.oasis-open.org/wss-m/wss/v1.1.1/os/wss-SOAPMessageSecurity-v1.1.1-os.html (1.1.1) </para>
     /// </summary>
-    public class Timestamp
+    public class SecurityTimestamp
     {
         private DateTime? _created;
         private DateTime? _expires;
 
         /// <summary>
-        /// Creates an instance of a <see cref="Timestamp"/>.
+        /// Creates an instance of a <see cref="SecurityTimestamp"/>.
         /// The Timestamp element provides a mechanism for expressing the creation and expiration times of the security semantics in a message.
         /// </summary>
         /// <param name="created">creation time, will be converted to UTC.</param>
         /// <param name="expires">expiration time will be converted to UTC.</param>
+        /// <param name="id"></param>
         /// <remarks>Value will be stored in UTC.</remarks>
-        public Timestamp(DateTime created, DateTime expires)
-            : this((DateTime?)created, (DateTime?)expires)
+        public SecurityTimestamp(DateTime created, DateTime expires, string id)
+            : this((DateTime?)created, (DateTime?)expires, id)
         {
         }
 
         /// <summary>
-        /// Creates an instance of a <see cref="Timestamp"/>.
+        /// Creates an instance of a <see cref="SecurityTimestamp"/>.
         /// The Timestamp element provides a mechanism for expressing the creation and expiration times of the security semantics in a message.
         /// </summary>
         /// <param name="created">creation time, will be converted to UTC.</param>
         /// <param name="expires">expiration time will be converted to UTC.</param>
+        /// <param name="id"></param>
         /// <remarks>Value will be stored in UTC.</remarks>
-        public Timestamp(DateTime? created, DateTime? expires)
+        public SecurityTimestamp(DateTime? created, DateTime? expires, string id)
         {
             if (created.HasValue && expires.HasValue && expires.Value <= created.Value)
                 LogHelper.LogWarning(LogMessages.IDX15500);
@@ -43,6 +45,8 @@ namespace Microsoft.IdentityModel.Protocols.WsTrust.WsUtility
 
             if (expires.HasValue)
                 Expires = expires.Value.ToUniversalTime();
+
+            Id = id;
         }
 
         /// <summary>
@@ -64,5 +68,10 @@ namespace Microsoft.IdentityModel.Protocols.WsTrust.WsUtility
             get => _expires;
             set => _expires = (value.HasValue) ? _expires = value.Value.ToUniversalTime() : value;
         }
+
+        /// <summary>
+        /// Gets the Id of SecurityTimestamp element
+        /// </summary>
+        public string Id { get; }
     }
 }
