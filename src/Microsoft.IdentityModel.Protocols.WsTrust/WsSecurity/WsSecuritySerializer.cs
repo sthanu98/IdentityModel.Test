@@ -27,12 +27,14 @@
 
 using System;
 using System.IO;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Xml;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Protocols.WsTrust;
 using Microsoft.IdentityModel.Protocols.WsTrust.SoapEnvelope;
 using Microsoft.IdentityModel.Protocols.WsTrust.WsAddressing;
+using Microsoft.IdentityModel.Protocols.WsTrust.WsSecurity;
 using Microsoft.IdentityModel.Protocols.WsTrust.WsUtility;
 using Microsoft.IdentityModel.Protocols.WsUtility;
 using Microsoft.IdentityModel.Xml;
@@ -202,28 +204,36 @@ namespace Microsoft.IdentityModel.Protocols.WsSecurity
         /// </summary>
         /// <param name="writer"></param>
         /// <param name="serializationContext"></param>
-        /// <param name="timestamp"></param>
-        /// <param name="token"></param>
-        public static void WriteSecurityHeader(XmlDictionaryWriter writer, WsSerializationContext serializationContext, Timestamp timestamp, string token)
+        /// <param name="certificate"></param>
+        public static void WriteSecurityHeader(XmlDictionaryWriter writer, WsSerializationContext serializationContext, X509Certificate2 certificate)
         {
-            WsUtils.ValidateParamsForWritting(writer, serializationContext, timestamp, nameof(timestamp));
+            WsUtils.ValidateParamsForWritting(writer, serializationContext, certificate, nameof(certificate));
+            //WsUtils.ValidateParamsForWritting(writer, serializationContext, signatureWriter, nameof(signatureWriter));
 
             writer.WriteStartElement(WsSecurityConstants.WsSecurity10.Prefix, WsSecurityElements.Security, WsSecurityConstants.WsSecurity10.Namespace);
             writer.WriteAttributeString(SoapEnvelopeAttributes.MustUnderstand, SoapEnvelopeConstants.SoapEnvelope12Constants.Namespace, "1");
-            WsUtilitySerializer.WriteTimestamp(writer, serializationContext, timestamp);
-            WriteBinarySecurityToken(writer, serializationContext, token);
+            WsUtilitySerializer.WriteTimestamp(writer, serializationContext);
+            WriteBinarySecurityToken(writer, serializationContext, certificate);
+            //signatureWriter.WriteSignature();
             writer.WriteEndElement();
         }
 
-        internal static void WriteBinarySecurityToken(XmlDictionaryWriter writer, WsSerializationContext serializationContext, string token)
+        internal static void WriteBinarySecurityToken(XmlDictionaryWriter writer, WsSerializationContext serializationContext, X509Certificate2 certificate)
         {
-            WsUtils.ValidateParamsForWritting(writer, serializationContext, token, nameof(token));
+            WsUtils.ValidateParamsForWritting(writer, serializationContext, certificate, nameof(certificate));
+
+            byte[] rawData = certificate.GetRawCertData();
+
+            if (rawData == null)
+            {
+                throw LogHelper.LogArgumentNullException(nameof(rawData));
+            }
 
             writer.WriteStartElement(WsSecurityConstants.WsSecurity10.Prefix, WsSecurityElements.BinarySecurityToken, WsSecurityConstants.WsSecurity10.Namespace);
-            writer.WriteAttributeString(WsUtilityAttributes.Id, "uuid-b2a0e470-b3a2-4e43-995c-7a48d3988069-9");
-            writer.WriteAttributeString(WsSecurityAttributes.ValueType, "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3");
-            writer.WriteAttributeString(WsSecurityAttributes.EncodingType, "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary");
-            writer.WriteString(token);
+            writer.WriteAttributeString(WsSecurityConstants.WsSecurity10.Prefix, WsUtilityAttributes.Id, WsSecurityConstants.WsSecurity10.Namespace, SecurityUniqueId.Create().Value);
+            writer.WriteAttributeString(WsSecurityAttributes.ValueType, WsSecurityConstants.WsSecurity10.X509TokenType);
+            writer.WriteAttributeString(WsSecurityAttributes.EncodingType, WsSecurityConstants.WsSecurity10.Base64EncodingType);
+            writer.WriteBase64(rawData, 0, rawData.Length);
             writer.WriteEndElement();
         }
     }
