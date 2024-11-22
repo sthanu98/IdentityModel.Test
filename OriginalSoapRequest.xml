@@ -1,0 +1,117 @@
+<s:Envelope
+    xmlns:s="http://www.w3.org/2003/05/soap-envelope"
+    xmlns:a="http://www.w3.org/2005/08/addressing"
+    xmlns:u="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">
+    <s:Header>
+        <a:Action s:mustUnderstand="1">http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue</a:Action>
+        <a:MessageID>urn:uuid:1f3d5204-4532-4398-9f4a-b14a99a28eaa</a:MessageID>
+        <a:ReplyTo>
+            <a:Address>http://www.w3.org/2005/08/addressing/anonymous</a:Address>
+        </a:ReplyTo>
+        <a:To s:mustUnderstand="1" u:Id="_1">https://co2agg04-dsts.dsts.core.azure-test.net/v2/wstrust/13/certificate</a:To>
+        <o:Security s:mustUnderstand="1"
+            xmlns:o="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+            <u:Timestamp u:Id="_0">
+                <u:Created>2024-10-18T18:03:35.747Z</u:Created>
+                <u:Expires>2024-10-18T18:08:35.747Z</u:Expires>
+            </u:Timestamp>
+            <o:BinarySecurityToken u:Id="uuid-b2a0e470-b3a2-4e43-995c-7a48d3988069-9" ValueType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3" EncodingType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary">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</o:BinarySecurityToken>
+            <Signature
+                xmlns="http://www.w3.org/2000/09/xmldsig#">
+                <SignedInfo>
+                    <CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+                    <SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/>
+                    <Reference URI="#_0">
+                        <Transforms>
+                            <Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+                        </Transforms>
+                        <DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+                        <DigestValue>WP0OlqbevD173MpywIEYWb5BCpc=</DigestValue>
+                    </Reference>
+                    <Reference URI="#_1">
+                        <Transforms>
+                            <Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+                        </Transforms>
+                        <DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+                        <DigestValue>0NlyCpCoAt9vn74xcaoCdaY6YAc=</DigestValue>
+                    </Reference>
+                </SignedInfo>
+                <SignatureValue>gwFGjAsG+BswbdqfSzQszRDq/Io/IkvOmmcH21cI9k9H6gUqrskZkushF8TqQIaVDwYS8JcGoyARGnVouGDGprxzr0BSbnoGMpodrcgByqFnUjCifL6bp4AlytRF808m++Z4HSGW9aMeIxPECEzaC8uKlJ/NDL6mEf48oi2c76b5WA5XyiJPthRyeBONvSThXsvT+9cin1LZM+Apw2+Z62hps8Ry+engxt4SmD1MLeAbBcfbKXQb5BWxNJhGZ4rF6xhYoX3Dx80KmHcECchIpY2nQfD1D4Ov0YMsduMEp0nxzVxwptQ3ad15UyRMo27YslnBp0qgRB9g7Do845Q15w==</SignatureValue>
+                <KeyInfo>
+                    <o:SecurityTokenReference>
+                        <o:Reference URI="#uuid-b2a0e470-b3a2-4e43-995c-7a48d3988069-9"/>
+                    </o:SecurityTokenReference>
+                </KeyInfo>
+            </Signature>
+        </o:Security>
+    </s:Header>
+    <s:Body>
+        <trust:RequestSecurityToken
+            xmlns:trust="http://docs.oasis-open.org/ws-sx/ws-trust/200512">
+            <wsp:AppliesTo
+                xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy">
+                <a:EndpointReference>
+                    <a:Address>svc://SampleServiceName@dsts-aware-service.dsts.core.azure-test.net/</a:Address>
+                </a:EndpointReference>
+            </wsp:AppliesTo>
+            <trust:KeyType>http://docs.oasis-open.org/ws-sx/ws-trust/200512/Bearer</trust:KeyType>
+            <tr:ActAs
+                xmlns:tr="http://docs.oasis-open.org/ws-sx/ws-trust/200802">
+                <Assertion ID="_f0b2451d-658c-4fe4-ade0-cafe32fec3ea" IssueInstant="2024-10-18T18:03:34.854Z" Version="2.0"
+                    xmlns="urn:oasis:names:tc:SAML:2.0:assertion">
+                    <Issuer>realm://dsts.core.azure-test.net/</Issuer>
+                    <ds:Signature
+                        xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+                        <ds:SignedInfo>
+                            <ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+                            <ds:SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"/>
+                            <ds:Reference URI="#_f0b2451d-658c-4fe4-ade0-cafe32fec3ea">
+                                <ds:Transforms>
+                                    <ds:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/>
+                                    <ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+                                </ds:Transforms>
+                                <ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>
+                                <ds:DigestValue>ystG8xUMzKIXJqRe0rNnRbkAYrdxQQGH8o71GjE+P2E=</ds:DigestValue>
+                            </ds:Reference>
+                        </ds:SignedInfo>
+                        <ds:SignatureValue>ESGA5N//53hVF+YJ5d+cyEogLKEBElLbtOq0vyZJ3NaC++xdljq3azd1kaIiM1IDXp1bcfLelW44RgrJRakdTELTzNdU63xhTjNcGTeX5yyEtBcCK3HBc1V9SQc1/JXJPhA6K9mznBb6fsPVrqg+i5bMSina/TcKxfoYiIRAWdgpQYTU6g/nl7LJPMGAlKYkH4pvqnEmR0M/hi0drwFqg/2pgvrL4gmNyBdpdEvIGTLcp7CQH1NcPo9p+UA8vz3yBxcLu9IltAxjB1nN9s2TWHQVF96TZrt2RmtIi4UupYa28yETQjazYAFS9bF3lKrZmSflu9ybciXybYctMqtGbA==</ds:SignatureValue>
+                        <KeyInfo
+                            xmlns="http://www.w3.org/2000/09/xmldsig#">
+                            <X509Data>
+                                <X509Certificate>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</X509Certificate>
+                            </X509Data>
+                        </KeyInfo>
+                    </ds:Signature>
+                    <Subject>
+                        <NameID>SampleSNIUserAccountV2</NameID>
+                        <SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer"/>
+                    </Subject>
+                    <Conditions NotBefore="2024-10-18T18:03:34.854Z" NotOnOrAfter="2024-10-19T18:03:34.854Z">
+                        <AudienceRestriction>
+                            <Audience>svc://SampleServiceProxyv2@dsts-aware-service.dsts.core.azure-test.net/</Audience>
+                        </AudienceRestriction>
+                    </Conditions>
+                    <AttributeStatement>
+                        <Attribute Name="http://schemas.microsoft.com/identity/claims/clienthomedsts">
+                            <AttributeValue>co2agg04-dsts.dsts.core.azure-test.net</AttributeValue>
+                        </Attribute>
+                        <Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name">
+                            <AttributeValue>SampleSNIUserAccountV2</AttributeValue>
+                        </Attribute>
+                        <Attribute Name="http://schemas.microsoft.com/accesscontrolservice/2010/07/claims/identityprovider">
+                            <AttributeValue>realm://dsts.core.azure-test.net/</AttributeValue>
+                        </Attribute>
+                    </AttributeStatement>
+                </Assertion>
+            </tr:ActAs>
+            <trust:RequestType>http://docs.oasis-open.org/ws-sx/ws-trust/200512/Issue</trust:RequestType>
+            <trust:TokenType>urn:oasis:names:tc:SAML:2.0:assertion</trust:TokenType>
+            <auth:AdditionalContext
+                xmlns:auth="http://docs.oasis-open.org/wsfed/authorization/200706">
+                <auth:ContextItem Name="http://schemas.microsoft.com/ws/2008/06/additonalContext/subjectName">
+                    <auth:Value>true</auth:Value>
+                </auth:ContextItem>
+            </auth:AdditionalContext>
+        </trust:RequestSecurityToken>
+    </s:Body>
+</s:Envelope>
