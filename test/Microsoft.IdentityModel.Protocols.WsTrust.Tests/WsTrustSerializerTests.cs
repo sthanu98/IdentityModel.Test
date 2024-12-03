@@ -688,6 +688,52 @@ namespace Microsoft.IdentityModel.Protocols.WsTrust.Tests
             }
         }
 
+        [Theory, MemberData(nameof(WriteActAsTestCases))]
+        public void WriteActAs(WsTrustTheoryData theoryData)
+        {
+            var context = TestUtilities.WriteHeader($"{this}.WriteActAs", theoryData);
+            try
+            {
+                theoryData.WsTrustSerializer.WriteActAs(theoryData.Writer, theoryData.WsSerializationContext, theoryData.ActAs);
+                //IdentityComparer.AreEqual(lifetime, theoryData.Lifetime, context);
+            }
+            catch (Exception ex)
+            {
+                theoryData.ExpectedException.ProcessException(ex, context);
+            }
+
+            TestUtilities.AssertFailIfErrors(context);
+        }
+
+        public static TheoryData<WsTrustTheoryData> WriteActAsTestCases
+        {
+            get
+            {
+                return new TheoryData<WsTrustTheoryData>
+                {
+                    new WsTrustTheoryData(new MemoryStream())
+                    {
+                        ExpectedException = ExpectedException.ArgumentNullException("serializationContext"),
+                        First = true,
+                        ActAs = new SecurityTokenElement(new SecurityTokenReference()),
+                        TestId = "SerializationContextNull"
+                    },
+                    new WsTrustTheoryData(WsTrustVersion.Trust13)
+                    {
+                        ExpectedException = ExpectedException.ArgumentNullException("writer"),
+                        ActAs = new SecurityTokenElement(new SecurityTokenReference()),
+                        TestId = "WriterNull",
+                    },
+                    new WsTrustTheoryData(new MemoryStream(), WsTrustVersion.Trust13)
+                    {
+                        ExpectedException = ExpectedException.ArgumentNullException("actAs"),
+                        TestId = "OnBehalfOfNull"
+                    }
+                };
+            }
+        }
+
+
         [Theory, MemberData(nameof(WriteProofEncryptionTestCases))]
         public void WriteProofEncryption(WsTrustTheoryData theoryData)
         {
