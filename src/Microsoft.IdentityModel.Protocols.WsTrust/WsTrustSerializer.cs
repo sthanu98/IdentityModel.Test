@@ -1175,6 +1175,61 @@ namespace Microsoft.IdentityModel.Protocols.WsTrust
         }
 
         /// <summary>
+        /// Writes a &lt;ActAs&gt; element.
+        /// <para>see: http://docs.oasis-open.org/ws-sx/ws-trust/200512/ws-trust-1.3-os.html </para>
+        /// </summary>
+        /// <param name="writer">A <see cref="XmlDictionaryWriter"/> to write the element into.</param>
+        /// <param name="serializationContext">A <see cref="WsSerializationContext"/> defines specification versions that are expected.</param>
+        /// <param name="actAs">The <see cref="SecurityTokenElement"/> to write.</param>
+        /// <exception cref="ArgumentNullException">Thrown if <paramref name="writer"/> is null.</exception>
+        /// <exception cref="ArgumentNullException">Thrown if <paramref name="serializationContext"/> is null.</exception>
+        /// <exception cref="ArgumentNullException">Thrown if <paramref name="actAs"/> is null.</exception>
+        /// <exception cref="XmlWriteException">If an error occurs when writing the element.</exception>
+        public void WriteActAs(XmlDictionaryWriter writer, WsSerializationContext serializationContext, SecurityTokenElement actAs)
+        {
+            //  <tr:ActAs>
+            //      one of
+            //      <wsse:SecurityTokenReference>
+            //      <wsa:EndpointReference>
+            //      <SecurityToken>
+            //  </tr:ActAs>
+
+            WsUtils.ValidateParamsForWritting(writer, serializationContext, actAs, nameof(actAs));
+
+            try
+            {
+                writer.WriteStartElement(serializationContext.TrustConstants.Prefix, WsTrustElements.ActAs, WsTrust14Constants.Trust14.Namespace);
+                if (actAs.SecurityToken != null)
+                {
+                    bool tryWriteSucceeded = false;
+                    if (actAs.SecurityToken is Saml2SecurityToken saml2SecurityToken)
+                        tryWriteSucceeded = TryWriteSourceData(writer, saml2SecurityToken.Assertion, _saml2AssertionType);
+                    else if (actAs.SecurityToken is SamlSecurityToken samlSecurityToken)
+                        tryWriteSucceeded = TryWriteSourceData(writer, samlSecurityToken.Assertion, _samlAssertionType);
+
+                    if (!tryWriteSucceeded)
+                        foreach (SecurityTokenHandler tokenHandler in SecurityTokenHandlers)
+                        {
+                            if (tokenHandler.TokenType == actAs.SecurityToken.GetType())
+                            {
+                                tokenHandler.WriteToken(writer, actAs.SecurityToken);
+                                break;
+                            }
+                        }
+                }
+
+                writer.WriteEndElement();
+            }
+            catch (Exception ex)
+            {
+                if (ex is XmlWriteException)
+                    throw;
+
+                throw XmlUtil.LogWriteException(LogMessages.IDX15407, ex, WsTrustElements.OnBehalfOf, ex);
+            }
+        }
+
+        /// <summary>
         /// A method like this should be added to the tokenhandlers, when the original data is needed.
         /// </summary>
         /// <param name="writer"></param>
@@ -1192,7 +1247,7 @@ namespace Microsoft.IdentityModel.Protocols.WsTrust
                 if (_xmlTokenStreamType == null)
                     _xmlTokenStreamType = xmlTokenStream.GetType();
 
-                _xmlTokenStreamType.InvokeMember("WriteTo", invokeMethodFlags, null, xmlTokenStream, new object[] { writer }, CultureInfo.InvariantCulture);
+                _xmlTokenStreamType.InvokeMember("WriteToWithoutExclusions", invokeMethodFlags, null, xmlTokenStream, new object[] { writer }, CultureInfo.InvariantCulture);
                 return true;
             }
             catch(Exception)
@@ -1302,6 +1357,9 @@ namespace Microsoft.IdentityModel.Protocols.WsTrust
 
                 if (trustRequest.OnBehalfOf != null)
                     WriteOnBehalfOf(writer, serializationContext, trustRequest.OnBehalfOf);
+
+                if (trustRequest.ActAs != null)
+                    WriteActAs(writer, serializationContext, trustRequest.ActAs);
 
                 if (trustRequest.AdditionalContext != null)
                     WsFedSerializer.WriteAdditionalContext(writer, serializationContext, trustRequest.AdditionalContext);

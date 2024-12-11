@@ -30,6 +30,8 @@ using Microsoft.IdentityModel.Protocols.WsFed;
 using Microsoft.IdentityModel.Protocols.WsPolicy;
 using Microsoft.IdentityModel.Protocols.WsSecurity;
 using Microsoft.IdentityModel.Protocols.WsTrust;
+using Microsoft.IdentityModel.Protocols.WsTrust.SoapEnvelope;
+using Microsoft.IdentityModel.Protocols.WsUtility;
 
 namespace Microsoft.IdentityModel.Protocols
 {
@@ -46,6 +48,8 @@ namespace Microsoft.IdentityModel.Protocols
         public WsSerializationContext(WsTrustVersion wsTrustVersion)
         {
             TrustVersion = wsTrustVersion;
+            SoapEnvelopeConstants = SoapEnvelopeConstants.SoapEnvelope12Constants;
+            UtilityConstants = WsUtilityConstants.WsUtility10;
 
             if (wsTrustVersion is WsTrustFeb2005Version)
             {
@@ -80,6 +84,11 @@ namespace Microsoft.IdentityModel.Protocols
         }
 
         /// <summary>
+        /// Gets the <see cref="SoapEnvelopeConstants"/> associated with the <see cref="WsTrustVersion"/> passed to constructor.
+        /// </summary>
+        public SoapEnvelopeConstants SoapEnvelopeConstants { get; }
+
+        /// <summary>
         /// Gets the <see cref="WsAddressingConstants"/> associated with the <see cref="WsTrustVersion"/> passed to constructor.
         /// </summary>
         public WsAddressingConstants AddressingConstants { get; }
@@ -98,6 +107,11 @@ namespace Microsoft.IdentityModel.Protocols
         /// Gets the <see cref="WsSecurityConstants"/> associated with the <see cref="WsTrustVersion"/> passed to constructor.
         /// </summary>
         public WsSecurityConstants SecurityConstants { get; }
+
+        /// <summary>
+        /// Gets the <see cref="WsUtilityConstants"/> associated with the <see cref="WsTrustVersion"/> passed to constructor.
+        /// </summary>
+        public WsUtilityConstants UtilityConstants { get; }
 
         /// <summary>
         /// Gets the <see cref="WsTrustActions"/> associated with the <see cref="WsTrustVersion"/> passed to constructor.
